@@ -89,17 +89,20 @@ export const RunTestScreen = ({navigation, route}) => {
   }, [status, items]);
 
   const normalColors = [
-    ['#00B383', 0.2],
-    ['#00E096', 0.2],
-    ['#51F0B0', 0.2],
-    ['#FFE59E', 0.1],
-    ['#FFC94D', 0.1],
-    ['#FF708D', 0.1],
-    ['#FF3D71', 0.05],
-    ['#DB2C66', 0.05],
+    ['#439B12', 0.1],
+    ['#5CB91A', 0.1],
+    ['#78D824', 0.1],
+    ['#A2E756', 0.1],
+    ['#DBC80C', 0.1],
+    ['#FFEB11', 0.1],
+    ['#FFF14C', 0.1],
+    ['#FA866B', 0.1],
+    ['#F65946', 0.1],
+    ['#f1100b', 0.05],
+    ['#CF0814', 0.05],
   ];
 
-  const restColor = '#3366FF';
+  const restColor = '#118df0';
 
   const _fadeInRestTextUp = () => {
     if (RestTextAnimationRef) {
@@ -194,7 +197,7 @@ export const RunTestScreen = ({navigation, route}) => {
                 const minutes = Math.floor(remainingTime / 60);
                 const seconds = remainingTime % 60;
                 return (
-                  <Text category="h4" style={{fontSize: 72}}>
+                  <Text category="h4" style={{fontSize: 84}}>
                     {minutes} : {seconds}
                   </Text>
                 );
@@ -212,18 +215,19 @@ export const RunTestScreen = ({navigation, route}) => {
           ) : (
             <View style={styles.buttonGroup}>
               <Button
-                size="medium"
-                style={styles.startButton}
-                onPress={() => setIsPlaying(true)}>
-                Start
-              </Button>
-              <Button
                 appearance="outline"
-                status="danger"
+                status="info"
                 size="medium"
                 style={styles.resetButton}
                 onPress={() => reset()}>
                 Reset
+              </Button>
+              <Button
+                status="success"
+                size="medium"
+                style={styles.startButton}
+                onPress={() => setIsPlaying(true)}>
+                Start
               </Button>
             </View>
           )}
@@ -253,67 +257,3 @@ const themedStyle = StyleService.create({
     width: '30%',
   },
 });
-/*
-import React, {useState, useRef} from 'react';
-import {View, Button, Text} from 'react-native';
-import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
-
-export const RunTestScreen = ({navigation, route}) => {
-  const [key, setKey] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const previousTime = useRef();
-  let runSequence = [5, 0, 6, 3, 8, 1, 19, 4];
-
-  const normalColors = [
-    ['#00B383', 0.2],
-    ['#00E096', 0.2],
-    ['#51F0B0', 0.2],
-    ['#FFE59E', 0.1],
-    ['#FFC94D', 0.1],
-    ['#FF708D', 0.1],
-    ['#FF3D71', 0.05],
-    ['#DB2C66', 0.05],
-  ];
-
-  const restColor = '#3366FF';
-
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <CountdownCircleTimer
-        onComplete={() => {
-          setKey(prevKey => {
-            const nextKey = prevKey + 1;
-            previousTime.current = runSequence[nextKey];
-            return nextKey;
-          });
-        }}
-        isPlaying={isPlaying}
-        key={key}
-        duration={runSequence[key]}
-        size={300}
-        strokeWidth={18}
-        colors={key % 2 === 0 ? normalColors : restColor}>
-        {({remainingTime}) => {
-          if (remainingTime < previousTime.current) {
-            console.log(remainingTime);
-            previousTime.current = remainingTime;
-          }
-          const minutes = Math.floor(remainingTime / 60);
-          const seconds = remainingTime % 60;
-          return (
-            <Text category="h4" style={{fontSize: 72}}>
-              {minutes} : {seconds}
-            </Text>
-          );
-        }}
-      </CountdownCircleTimer>
-
-      {isPlaying ? (
-        <Button title="stop" onPress={() => setIsPlaying(false)} />
-      ) : (
-        <Button title="start" onPress={() => setIsPlaying(true)} />
-      )}
-    </View>
-  );
-};
-*/

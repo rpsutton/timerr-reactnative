@@ -17,7 +17,6 @@ import {
 import {View, ScrollView} from 'react-native';
 import {LargeDrawerIcon} from '../../../components/icons';
 import LinearGradient from 'react-native-linear-gradient';
-import runData from '../../../util/runData';
 import {useAuth} from '../../../util/auth';
 import {getTeam, useRunsByTeamAndDay} from '../../../util/db';
 
@@ -28,7 +27,7 @@ export const HomeScreen = ({navigation}) => {
   const [firstName, setFirstName] = useState('...');
   const [team, setTeam] = useState();
   const styles = useStyleSheet(themedStyle);
-
+  const runData = ['120s', 'Man U', 'Fartlek'];
   const openDrawer = () => {
     navigation.openDrawer();
   };
@@ -53,34 +52,34 @@ export const HomeScreen = ({navigation}) => {
     if (index === 0) {
       return (
         <Layout style={styles.renderFirstItemContainer} level="1">
-          <Text category="s1">{item.runName}</Text>
+          <Text category="s1">{item}</Text>
           <Divider />
         </Layout>
       );
-    } else if (index === runData.teamRuns.length - 1 && index % 2 === 1) {
+    } else if (index === runData.length - 1 && index % 2 === 1) {
       return (
         <Layout style={styles.renderLastItemContainer} level="1">
-          <Text category="s1">{item.runName}</Text>
+          <Text category="s1">{item}</Text>
           <Divider />
         </Layout>
       );
-    } else if (index === runData.teamRuns.length - 1 && index % 2 === 0) {
+    } else if (index === runData.length - 1 && index % 2 === 0) {
       return (
         <Layout style={styles.renderLastItemContainer} level="1">
-          <Text category="s1">{item.runName}</Text>
+          <Text category="s1">{item}</Text>
           <Divider />
         </Layout>
       );
     } else if (index % 2 === 0) {
       return (
         <Layout style={styles.renderItemContainer} level="1">
-          <Text category="s1">{item.runName}</Text>
+          <Text category="s1">{item}</Text>
         </Layout>
       );
     } else {
       return (
         <Layout style={styles.renderItemContainer} level="1">
-          <Text category="s1">{item.runName}</Text>
+          <Text category="s1">{item}</Text>
           <Divider />
         </Layout>
       );
@@ -193,7 +192,7 @@ export const HomeScreen = ({navigation}) => {
           <Spinner size="large" status="primary" />
         ) : (
           <List
-            data={runData.teamRuns}
+            data={runData}
             renderItem={renderItem}
             ListHeaderComponent={TeamRunsCardHeader}
             ListFooterComponent={ListFooter}

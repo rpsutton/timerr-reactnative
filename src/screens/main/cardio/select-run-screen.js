@@ -13,7 +13,6 @@ import {
 } from '@ui-kitten/components';
 import {View, ScrollView} from 'react-native';
 import {LargeCloseIcon} from '../../../components/icons';
-import runData from '../../../util/runData';
 
 export const SelectRunScreen = ({navigation}, route) => {
   const styles = useStyleSheet(themedStyle);
@@ -31,9 +30,9 @@ export const SelectRunScreen = ({navigation}, route) => {
     <TopNavigationAction icon={LargeCloseIcon} onPress={goBack} />
   );
 
-  const data = runData.teamRuns;
+  const data = ['120s', 'Man U', 'Fartlek'];
   const runDisplayValue = data[runIndex.row].runName;
-  const renderRunOption = (runTest) => <SelectItem title={runTest.runName} />;
+  const renderRunOption = (runTest) => <SelectItem title={runTest} />;
 
   const categories = ['My Team runs', 'My Custom Runs', 'My Saved Runs'];
   const categoryDisplayValue = categories[categoryIndex.row];

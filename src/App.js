@@ -8,27 +8,18 @@ import {MainTabNavigator} from './navigation/navigator';
 import {ThemeContext} from './util/themeContext';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {ProvideAuth} from './util/auth';
+import {default as masterTheme} from './util/custom-theme.json';
 
 function App() {
-  const [theme, setTheme] = useState('light');
-  const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
-
-  const toggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(nextTheme);
-    if (nextTheme === 'light') {
-      setBackgroundColor('#FFFFFF');
-    } else {
-      setBackgroundColor('#222B45');
-    }
-  };
   return (
     <ProvideAuth>
       <SafeAreaProvider>
         <NavigationContainer>
           <IconRegistry icons={EvaIconsPack} />
-          <ThemeContext.Provider value={{theme, toggleTheme, backgroundColor}}>
-            <ApplicationProvider {...eva} theme={eva[theme]}>
+          <ThemeContext.Provider>
+            <ApplicationProvider
+              {...eva}
+              theme={{...eva.light, ...masterTheme}}>
               <MainTabNavigator />
             </ApplicationProvider>
           </ThemeContext.Provider>

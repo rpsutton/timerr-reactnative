@@ -65,7 +65,7 @@ const AuthScreenStack = () => (
 const DrawerContent = ({navigation, state}) => (
   <Drawer
     selectedIndex={new IndexPath(state.index)}
-    onSelect={(index) => navigation.navigate(state.routeNames[index.row])}>
+    onSelect={index => navigation.navigate(state.routeNames[index.row])}>
     <DrawerItem title="Home" accessoryLeft={HomeIcon} />
     <DrawerItem title="Profile" accessoryLeft={PersonIcon} />
     <DrawerItem title="Settings" accessoryLeft={SettingsIcon} />
@@ -73,7 +73,7 @@ const DrawerContent = ({navigation, state}) => (
 );
 
 const DrawerNavigator = () => (
-  <DrawerObj.Navigator drawerContent={(props) => <DrawerContent {...props} />}>
+  <DrawerObj.Navigator drawerContent={props => <DrawerContent {...props} />}>
     <DrawerObj.Screen name="Home" component={HomeScreenStack} />
     <DrawerObj.Screen name="Profile" component={ProfileStack} />
     <DrawerObj.Screen name="Settings" component={DetailsScreen} />
@@ -105,7 +105,6 @@ function MainTabNavigator() {
           // eslint-disable-next-line react-native/no-inline-styles
           style={{
             flex: 1,
-            backgroundColor: themeContext.backgroundColor,
           }}>
           <Stack.Navigator headerMode="none" mode="modal">
             <Stack.Screen name="Main" component={DrawerNavigator} />
@@ -115,23 +114,20 @@ function MainTabNavigator() {
       );
     } else {
       return (
-        <SafeAreaView
-          style={{flex: 1, backgroundColor: themeContext.backgroundColor}}>
+        <SafeAreaView style={{flex: 1}}>
           <JoinTeamScreen />
         </SafeAreaView>
       );
     }
   } else if (initializing) {
     return (
-      <SafeAreaView
-        style={{flex: 1, backgroundColor: themeContext.backgroundColor}}>
+      <SafeAreaView style={{flex: 1}}>
         <InitializingScreen />
       </SafeAreaView>
     );
   } else {
     return (
-      <SafeAreaView
-        style={{flex: 1, backgroundColor: themeContext.backgroundColor}}>
+      <SafeAreaView style={{flex: 1}}>
         <AuthScreenStack />
       </SafeAreaView>
     );
