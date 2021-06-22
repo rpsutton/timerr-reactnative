@@ -44,7 +44,6 @@ export function SignInScreen({navigation}) {
       .signin(email, password)
       .then(() => {
         console.log('User signed in!');
-        setLoading(false);
       })
       .catch((error) => {
         if (error.code === 'auth/wrong-password') {

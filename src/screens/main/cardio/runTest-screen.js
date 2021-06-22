@@ -18,25 +18,34 @@ import Tts from 'react-native-tts';
 import {useRun} from '../../../util/db';
 
 export const RunTestScreen = ({navigation, route}) => {
+  // read in countdown to start, countdown to 0, announcement interval
+  const interval = 5;
+  const countdown = 5;
+  // get widow dimensions for timer
   const windowWidth = useWindowDimensions().width;
+  // initialize states and refs
   const [loading, setLoading] = useState(true);
   const [runSequence, setRunSequence] = useState([]);
   const [key, setKey] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const previousTime = useRef();
   const RestTextAnimationRef = useRef(null);
   const GoTextAnimationRef = useRef(null);
+  // initialize style sheet
   const styles = useStyleSheet(themedStyle);
   // initialize audio
   Tts.addEventListener('tts-start', event => null);
   Tts.addEventListener('tts-finish', event => null);
   Tts.addEventListener('tts-cancel', event => null);
 
-  const [isPlaying, setIsPlaying] = useState(false);
+  // get run data
+  const {data: items, status} = useRun('bywXlnulWOfiwolwEWfv');
 
   // this is not great because the timer resets only when key is altered
   // resetting means moving the key to 0, but if the key is already at 0 nothing will happen unil onComplete
   // the quick incrementing of the key enables reset to 0 whem index is already 0, but is poor UX
   function reset() {
-    if (key === 0 ) {
+    if (key === 0) {
       setKey(prevKey => prevKey + 1);
       setTimeout(() => {
         setKey(0);
@@ -45,8 +54,6 @@ export const RunTestScreen = ({navigation, route}) => {
       setKey(0);
     }
   }
-
-  const {data: items, status} = useRun('bywXlnulWOfiwolwEWfv');
 
   // format the run data into a flat array
   useEffect(() => {
@@ -66,12 +73,17 @@ export const RunTestScreen = ({navigation, route}) => {
           items.runSequence[i].upfield.targetTime.minutes * 60 +
           items.runSequence[i].upfield.targetTime.seconds;
 
-        formattedRun.push(parseInt(targetTimeDownfield, 10));
-        formattedRun.push(parseInt(restTimeDownfield, 10));
-        formattedRun.push(parseInt(targetTimeUpfield, 10));
-        formattedRun.push(parseInt(restTimeUpfield, 10));
+        formattedRun.push(targetTimeDownfield);
+        if (restTimeDownfield > 0) {
+          formattedRun.push(restTimeDownfield);
+        }
+        formattedRun.push(targetTimeUpfield);
+        if (restTimeUpfield > 0) {
+          formattedRun.push(restTimeUpfield);
+        }
       }
       setRunSequence(formattedRun);
+      previousTime.current = formattedRun[0];
       setLoading(false);
     }
   }, [status, items]);
@@ -156,7 +168,11 @@ export const RunTestScreen = ({navigation, route}) => {
           <View style={{marginBottom: '50%'}}>
             <CountdownCircleTimer
               onComplete={() => {
-                setKey(key + 1);
+                setKey(prevKey => {
+                  const nextKey = prevKey + 1;
+                  previousTime.current = runSequence[nextKey];
+                  return nextKey;
+                });
               }}
               isPlaying={isPlaying}
               key={key}
@@ -165,9 +181,18 @@ export const RunTestScreen = ({navigation, route}) => {
               strokeWidth={18}
               colors={key % 2 === 0 ? normalColors : restColor}>
               {({remainingTime}) => {
+                if (remainingTime < previousTime.current) {
+
+                  if (remainingTime % interval === 0 && remainingTime > 0) {
+                    Tts.speak(remainingTime.toString());
+                  }
+                  if (remainingTime <= countdown - 1 && remainingTime > 0) {
+                    Tts.speak(remainingTime.toString());
+                  }
+                  previousTime.current = remainingTime;
+                }
                 const minutes = Math.floor(remainingTime / 60);
                 const seconds = remainingTime % 60;
-
                 return (
                   <Text category="h4" style={{fontSize: 72}}>
                     {minutes} : {seconds}
@@ -228,3 +253,67 @@ const themedStyle = StyleService.create({
     width: '30%',
   },
 });
+/*
+import React, {useState, useRef} from 'react';
+import {View, Button, Text} from 'react-native';
+import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
+
+export const RunTestScreen = ({navigation, route}) => {
+  const [key, setKey] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const previousTime = useRef();
+  let runSequence = [5, 0, 6, 3, 8, 1, 19, 4];
+
+  const normalColors = [
+    ['#00B383', 0.2],
+    ['#00E096', 0.2],
+    ['#51F0B0', 0.2],
+    ['#FFE59E', 0.1],
+    ['#FFC94D', 0.1],
+    ['#FF708D', 0.1],
+    ['#FF3D71', 0.05],
+    ['#DB2C66', 0.05],
+  ];
+
+  const restColor = '#3366FF';
+
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <CountdownCircleTimer
+        onComplete={() => {
+          setKey(prevKey => {
+            const nextKey = prevKey + 1;
+            previousTime.current = runSequence[nextKey];
+            return nextKey;
+          });
+        }}
+        isPlaying={isPlaying}
+        key={key}
+        duration={runSequence[key]}
+        size={300}
+        strokeWidth={18}
+        colors={key % 2 === 0 ? normalColors : restColor}>
+        {({remainingTime}) => {
+          if (remainingTime < previousTime.current) {
+            console.log(remainingTime);
+            previousTime.current = remainingTime;
+          }
+          const minutes = Math.floor(remainingTime / 60);
+          const seconds = remainingTime % 60;
+          return (
+            <Text category="h4" style={{fontSize: 72}}>
+              {minutes} : {seconds}
+            </Text>
+          );
+        }}
+      </CountdownCircleTimer>
+
+      {isPlaying ? (
+        <Button title="stop" onPress={() => setIsPlaying(false)} />
+      ) : (
+        <Button title="start" onPress={() => setIsPlaying(true)} />
+      )}
+    </View>
+  );
+};
+*/
