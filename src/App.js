@@ -16,13 +16,9 @@ function App() {
       <SafeAreaProvider>
         <NavigationContainer>
           <IconRegistry icons={EvaIconsPack} />
-          <ThemeContext.Provider>
-            <ApplicationProvider
-              {...eva}
-              theme={{...eva.light, ...masterTheme}}>
-              <MainTabNavigator />
-            </ApplicationProvider>
-          </ThemeContext.Provider>
+          <ApplicationProvider {...eva} theme={{...eva.light, ...masterTheme}}>
+            <MainTabNavigator />
+          </ApplicationProvider>
         </NavigationContainer>
       </SafeAreaProvider>
     </ProvideAuth>

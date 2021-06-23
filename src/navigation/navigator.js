@@ -22,6 +22,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {ThemeContext} from '../util/themeContext';
 import {useAuth} from '../util/auth';
 import {HomeIcon, SettingsIcon, PersonIcon} from '../components/icons';
+import {StatusBar} from 'react-native';
 
 const Stack = createStackNavigator();
 const DrawerObj = createDrawerNavigator();
@@ -58,6 +59,7 @@ const AuthScreenStack = () => (
   <Stack.Navigator headerMode="none" initialRouteName="Sign In">
     <Stack.Screen name="Sign In" component={SignInScreen} />
     <Stack.Screen name="Sign Up" component={SignUpScreen} />
+    <Stack.Screen name="Join Team" component={JoinTeamScreen} />
     <Stack.Screen name="Forgot Password" component={ForgotPasswordScreen} />
   </Stack.Navigator>
 );
@@ -84,28 +86,43 @@ function MainTabNavigator() {
   const [initializing, setInitializing] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const themeContext = useContext(ThemeContext);
-
-  function onAuthStateChanged(user) {
-    setCurrentUser(user);
-    if (initializing) {
-      setInitializing(false);
-    }
-  }
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
+  const [isTeamMember, setIsTeamMember] = useState(false);
 
   const localAuth = useAuth();
 
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(user => {
+      setCurrentUser(user);
+      if (initializing) {
+        setInitializing(false);
+      }
+    });
+    return subscriber; // unsubscribe on unmount
+  }, [initializing]);
+
+  useEffect(() => {
+    if (localAuth) {
+      if (localAuth.user) {
+        console.log('user');
+        console.log(localAuth.user);
+        if (localAuth.user.teamId !== undefined) {
+          console.log('team member');
+          setIsTeamMember(true);
+        }
+      }
+    }
+  }, [localAuth]);
+
   if (currentUser) {
-    if (localAuth.teamId !== null) {
+    if (isTeamMember) {
       return (
         <SafeAreaView
           // eslint-disable-next-line react-native/no-inline-styles
           style={{
             flex: 1,
+            backgroundColor: 'white',
           }}>
+          <StatusBar barStyle="dark-content" />
           <Stack.Navigator headerMode="none" mode="modal">
             <Stack.Screen name="Main" component={DrawerNavigator} />
             <Stack.Screen name="Run Test Stack" component={RunTestStack} />
@@ -115,6 +132,7 @@ function MainTabNavigator() {
     } else {
       return (
         <SafeAreaView style={{flex: 1}}>
+          <StatusBar barStyle="dark-content" />
           <JoinTeamScreen />
         </SafeAreaView>
       );
@@ -122,12 +140,14 @@ function MainTabNavigator() {
   } else if (initializing) {
     return (
       <SafeAreaView style={{flex: 1}}>
+        <StatusBar barStyle="dark-content" />
         <InitializingScreen />
       </SafeAreaView>
     );
   } else {
     return (
       <SafeAreaView style={{flex: 1}}>
+        <StatusBar barStyle="dark-content" />
         <AuthScreenStack />
       </SafeAreaView>
     );

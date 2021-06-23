@@ -90,6 +90,14 @@ export function JoinTeamScreen({navigation}) {
           onPress={() => navigation.navigate('Sign Up')}>
           I don't have a team code
         </Button>
+        <Button
+          style={styles.footerButton}
+          size="small"
+          appearance="outline"
+          status="info"
+          onPress={() => auth.signout()}>
+          Sign Out
+        </Button>
       </View>
     </Layout>
   );

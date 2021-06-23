@@ -11,11 +11,11 @@ import {
   Button,
   Spinner,
 } from '@ui-kitten/components';
-import {View, Animated, useWindowDimensions} from 'react-native';
+import {View, useWindowDimensions} from 'react-native';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
-import * as Animatable from 'react-native-animatable';
 import Tts from 'react-native-tts';
 import {useRun} from '../../../util/db';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 export const RunTestScreen = ({navigation, route}) => {
   // read in countdown to start, countdown to 0, announcement interval
@@ -29,8 +29,6 @@ export const RunTestScreen = ({navigation, route}) => {
   const [key, setKey] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const previousTime = useRef();
-  const RestTextAnimationRef = useRef(null);
-  const GoTextAnimationRef = useRef(null);
   // initialize style sheet
   const styles = useStyleSheet(themedStyle);
   // initialize audio
@@ -104,30 +102,6 @@ export const RunTestScreen = ({navigation, route}) => {
 
   const restColor = '#118df0';
 
-  const _fadeInRestTextUp = () => {
-    if (RestTextAnimationRef) {
-      RestTextAnimationRef.current?.fadeInUp();
-    }
-  };
-
-  const _fadeOutRestText = () => {
-    if (RestTextAnimationRef) {
-      RestTextAnimationRef.current?.fadeOutDown();
-    }
-  };
-
-  const _fadeInGoTextUp = () => {
-    if (GoTextAnimationRef) {
-      GoTextAnimationRef.current?.fadeInUp();
-    }
-  };
-
-  const _fadeOutGoText = () => {
-    if (GoTextAnimationRef) {
-      GoTextAnimationRef.current?.fadeOutDown();
-    }
-  };
-
   const goBack = () => {
     navigation.goBack();
   };
@@ -185,13 +159,13 @@ export const RunTestScreen = ({navigation, route}) => {
               colors={key % 2 === 0 ? normalColors : restColor}>
               {({remainingTime}) => {
                 if (remainingTime < previousTime.current) {
-
                   if (remainingTime % interval === 0 && remainingTime > 0) {
                     Tts.speak(remainingTime.toString());
                   }
                   if (remainingTime <= countdown - 1 && remainingTime > 0) {
                     Tts.speak(remainingTime.toString());
                   }
+                  // set previous time to current time
                   previousTime.current = remainingTime;
                 }
                 const minutes = Math.floor(remainingTime / 60);
@@ -209,14 +183,16 @@ export const RunTestScreen = ({navigation, route}) => {
               size="medium"
               status="danger"
               style={styles.pauseButton}
-              onPress={() => setIsPlaying(false)}>
+              onPress={() => {
+                ReactNativeHapticFeedback.trigger('impactMedium');
+                setIsPlaying(false);
+              }}>
               Pause
             </Button>
           ) : (
             <View style={styles.buttonGroup}>
               <Button
-                appearance="outline"
-                status="info"
+                status="dangerh"
                 size="medium"
                 style={styles.resetButton}
                 onPress={() => reset()}>
@@ -226,7 +202,10 @@ export const RunTestScreen = ({navigation, route}) => {
                 status="success"
                 size="medium"
                 style={styles.startButton}
-                onPress={() => setIsPlaying(true)}>
+                onPress={() => {
+                  ReactNativeHapticFeedback.trigger('impactMedium');
+                  setIsPlaying(true);
+                }}>
                 Start
               </Button>
             </View>

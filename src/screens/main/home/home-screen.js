@@ -38,8 +38,8 @@ export const HomeScreen = ({navigation}) => {
       setFirstName(auth.user.firstName);
       getTeam(auth.user.teamId)
         .then((doc) => setTeam(doc.data()))
+        .then(() => setLoading(false))
         .catch((e) => console.log(e))
-        .finally(() => setLoading(false));
     }
     return () => (mounted = false);
   }, [auth.user]);

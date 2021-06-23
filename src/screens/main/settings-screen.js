@@ -8,13 +8,10 @@ import {
   TopNavigation,
   TopNavigationAction,
 } from '@ui-kitten/components';
-import {ThemeContext} from '../../util/themeContext';
 import {LargeDrawerIcon} from '../../components/icons';
 import {useAuth} from '../../util/auth';
 
 export const DetailsScreen = ({navigation}) => {
-  const themeContext = React.useContext(ThemeContext);
-
   const openDrawer = () => {
     navigation.openDrawer();
   };
@@ -37,9 +34,6 @@ export const DetailsScreen = ({navigation}) => {
         style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
         level="2">
         <Text category="h1">DETAILS</Text>
-        <Button style={{marginVertical: 4}} onPress={themeContext.toggleTheme}>
-          TOGGLE THEME
-        </Button>
         <Button onPress={() => auth.signout()}>sign out</Button>
       </Layout>
     </>
