@@ -192,7 +192,7 @@ export const RunTestScreen = ({navigation, route}) => {
           ) : (
             <View style={styles.buttonGroup}>
               <Button
-                status="dangerh"
+                status="danger"
                 size="medium"
                 style={styles.resetButton}
                 onPress={() => reset()}>
