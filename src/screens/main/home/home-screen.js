@@ -149,7 +149,7 @@ export const HomeScreen = ({navigation}) => {
         <Button
           style={styles.footerButton}
           size="giant"
-          onPress={() => navigation.navigate('Run Test Stack')}>
+          onPress={() => navigation.navigate('Select Run Screen')}>
           Practice My Runs
         </Button>
         <Calendar

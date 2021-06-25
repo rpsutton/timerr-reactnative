@@ -31,15 +31,12 @@ const HomeScreenStack = () => {
   return (
     <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
       <Stack.Screen name="Home Screen" component={HomeScreen} />
-    </Stack.Navigator>
-  );
-};
-
-const RunTestStack = () => {
-  return (
-    <Stack.Navigator headerMode="none" initialRouteName="Select Run Screen">
       <Stack.Screen name="Select Run Screen" component={SelectRunScreen} />
-      <Stack.Screen name="Run Test Screen" component={RunTestScreen} />
+      <Stack.Screen
+        name="Run Test Screen"
+        component={RunTestScreen}
+        options={{gestureEnabled: false}}
+      />
     </Stack.Navigator>
   );
 };
@@ -76,7 +73,11 @@ const DrawerContent = ({navigation, state}) => (
 
 const DrawerNavigator = () => (
   <DrawerObj.Navigator drawerContent={props => <DrawerContent {...props} />}>
-    <DrawerObj.Screen name="Home" component={HomeScreenStack} />
+    <DrawerObj.Screen
+      name="Home"
+      component={HomeScreenStack}
+      options={{swipeEnabled: false}}
+    />
     <DrawerObj.Screen name="Profile" component={ProfileStack} />
     <DrawerObj.Screen name="Settings" component={DetailsScreen} />
   </DrawerObj.Navigator>
@@ -85,7 +86,6 @@ const DrawerNavigator = () => (
 function MainTabNavigator() {
   const [initializing, setInitializing] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
-  const themeContext = useContext(ThemeContext);
   const [isTeamMember, setIsTeamMember] = useState(false);
 
   const localAuth = useAuth();
@@ -123,9 +123,8 @@ function MainTabNavigator() {
             backgroundColor: 'white',
           }}>
           <StatusBar barStyle="dark-content" />
-          <Stack.Navigator headerMode="none" mode="modal">
+          <Stack.Navigator headerMode="none">
             <Stack.Screen name="Main" component={DrawerNavigator} />
-            <Stack.Screen name="Run Test Stack" component={RunTestStack} />
           </Stack.Navigator>
         </SafeAreaView>
       );

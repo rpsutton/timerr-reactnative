@@ -11,7 +11,7 @@ import {
   Button,
   Spinner,
 } from '@ui-kitten/components';
-import {View, useWindowDimensions} from 'react-native';
+import {Alert, View, useWindowDimensions} from 'react-native';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
 import Tts from 'react-native-tts';
 import {useRun} from '../../../util/db';
@@ -35,6 +35,7 @@ export const RunTestScreen = ({navigation, route}) => {
   Tts.addEventListener('tts-start', event => null);
   Tts.addEventListener('tts-finish', event => null);
   Tts.addEventListener('tts-cancel', event => null);
+  Tts.setDefaultRate(0.55);
 
   // get run data
   const {data: items, status} = useRun('bywXlnulWOfiwolwEWfv');
@@ -51,9 +52,10 @@ export const RunTestScreen = ({navigation, route}) => {
     } else {
       setKey(0);
     }
+    previousTime.current = runSequence[0].time;
   }
 
-  // format the run data into a flat array
+  // format the run data into a flat array, convert minutes to seconds, remove zero value times
   useEffect(() => {
     if (status === 'success') {
       let formattedRun = [];
@@ -71,17 +73,21 @@ export const RunTestScreen = ({navigation, route}) => {
           items.runSequence[i].upfield.targetTime.minutes * 60 +
           items.runSequence[i].upfield.targetTime.seconds;
 
-        formattedRun.push(targetTimeDownfield);
+        formattedRun.push({time: targetTimeDownfield, isRest: false});
+
         if (restTimeDownfield > 0) {
-          formattedRun.push(restTimeDownfield);
+          formattedRun.push({time: restTimeDownfield, isRest: true});
         }
-        formattedRun.push(targetTimeUpfield);
-        if (restTimeUpfield > 0) {
-          formattedRun.push(restTimeUpfield);
+
+        formattedRun.push({time: targetTimeUpfield, isRest: false});
+
+        if (restTimeUpfield) {
+          formattedRun.push({time: restTimeUpfield, isRest: true});
         }
       }
       setRunSequence(formattedRun);
-      previousTime.current = formattedRun[0];
+      // assign previous ref value
+      previousTime.current = formattedRun[0].time;
       setLoading(false);
     }
   }, [status, items]);
@@ -102,9 +108,18 @@ export const RunTestScreen = ({navigation, route}) => {
 
   const restColor = '#118df0';
 
-  const goBack = () => {
-    navigation.goBack();
-  };
+  const showAlert = () =>
+    Alert.alert('Cancel Run', 'Are you sure you want to cancel this run?', [
+      {
+        text: 'Cancel Run',
+        onPress: () => navigation.goBack(),
+        style: 'destructive',
+      },
+      {
+        text: 'Dismiss',
+        style: 'cancel',
+      },
+    ]);
 
   const CancelButton = () => {
     return (
@@ -112,7 +127,7 @@ export const RunTestScreen = ({navigation, route}) => {
         status="danger"
         size="small"
         appearance="ghost"
-        onPress={() => goBack()}>
+        onPress={() => showAlert()}>
         Cancel
       </Button>
     );
@@ -128,7 +143,7 @@ export const RunTestScreen = ({navigation, route}) => {
         />
         <Divider />
         <Layout style={styles.container} level="2">
-          <Text>loading...</Text>
+          <Spinner size="giant" />
         </Layout>
       </>
     );
@@ -141,35 +156,45 @@ export const RunTestScreen = ({navigation, route}) => {
           accessoryLeft={CancelButton}
         />
         <Divider />
-        <Layout style={styles.container} level="2">
+        <Layout style={styles.container} level="1">
           <View style={{marginBottom: '50%'}}>
             <CountdownCircleTimer
               onComplete={() => {
                 setKey(prevKey => {
                   const nextKey = prevKey + 1;
-                  previousTime.current = runSequence[nextKey];
+                  previousTime.current = runSequence[nextKey].time;
                   return nextKey;
                 });
+                if (runSequence[key + 1].isRest) {
+                  Tts.speak('rest');
+                } else {
+                  Tts.speak('go');
+                }
               }}
               isPlaying={isPlaying}
               key={key}
-              duration={runSequence[key]}
+              duration={runSequence[key].time}
               size={windowWidth * 0.9}
               strokeWidth={18}
-              colors={key % 2 === 0 ? normalColors : restColor}>
+              colors={runSequence[key].isRest ? restColor : normalColors}>
               {({remainingTime}) => {
                 if (remainingTime < previousTime.current) {
+                  // interval speach
                   if (remainingTime % interval === 0 && remainingTime > 0) {
                     Tts.speak(remainingTime.toString());
                   }
-                  if (remainingTime <= countdown - 1 && remainingTime > 0) {
+                  // countdown speach
+                  if (remainingTime < countdown && remainingTime > 0) {
                     Tts.speak(remainingTime.toString());
                   }
                   // set previous time to current time
                   previousTime.current = remainingTime;
                 }
-                const minutes = Math.floor(remainingTime / 60);
-                const seconds = remainingTime % 60;
+                // format time text
+                var minutes = Math.floor(remainingTime / 60);
+                var seconds = remainingTime % 60;
+                seconds < 10 ? (seconds = `${'0' + seconds}`) : null;
+                minutes < 10 ? (minutes = `${'0' + minutes}`) : null;
                 return (
                   <Text category="h4" style={{fontSize: 84}}>
                     {minutes} : {seconds}
@@ -184,7 +209,7 @@ export const RunTestScreen = ({navigation, route}) => {
               status="danger"
               style={styles.pauseButton}
               onPress={() => {
-                ReactNativeHapticFeedback.trigger('impactMedium');
+                ReactNativeHapticFeedback.trigger('impactHeavy');
                 setIsPlaying(false);
               }}>
               Pause
@@ -195,7 +220,10 @@ export const RunTestScreen = ({navigation, route}) => {
                 status="danger"
                 size="medium"
                 style={styles.resetButton}
-                onPress={() => reset()}>
+                onPress={() => {
+                  ReactNativeHapticFeedback.trigger('impactHeavy');
+                  reset();
+                }}>
                 Reset
               </Button>
               <Button
@@ -203,7 +231,7 @@ export const RunTestScreen = ({navigation, route}) => {
                 size="medium"
                 style={styles.startButton}
                 onPress={() => {
-                  ReactNativeHapticFeedback.trigger('impactMedium');
+                  ReactNativeHapticFeedback.trigger('impactHeavy');
                   setIsPlaying(true);
                 }}>
                 Start

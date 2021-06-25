@@ -12,7 +12,7 @@ import {
   SelectItem,
 } from '@ui-kitten/components';
 import {View, ScrollView} from 'react-native';
-import {LargeCloseIcon} from '../../../components/icons';
+import {LargeBackIcon} from '../../../components/icons';
 
 export const SelectRunScreen = ({navigation}, route) => {
   const styles = useStyleSheet(themedStyle);
@@ -27,7 +27,7 @@ export const SelectRunScreen = ({navigation}, route) => {
     navigation.goBack();
   };
   const BackAction = () => (
-    <TopNavigationAction icon={LargeCloseIcon} onPress={goBack} />
+    <TopNavigationAction icon={LargeBackIcon} onPress={goBack} />
   );
 
   const data = ['120s', 'Man U', 'Fartlek'];
@@ -74,7 +74,7 @@ export const SelectRunScreen = ({navigation}, route) => {
         alignment="center"
         accessoryLeft={BackAction}
       />
-      <Layout style={styles.container} level="2">
+      <Layout style={styles.container} level="1">
         <ScrollView contentContainerStyle={styles.contentContainerStyle}>
           <Text category="h1" style={styles.selectRunText}>
             Select Run Test
