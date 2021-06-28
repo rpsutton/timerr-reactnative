@@ -19,7 +19,6 @@ import {ForgotPasswordScreen} from '../screens/auth/forgotPassword-screen';
 import auth from '@react-native-firebase/auth';
 import {Drawer, DrawerItem, IndexPath} from '@ui-kitten/components';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {ThemeContext} from '../util/themeContext';
 import {useAuth} from '../util/auth';
 import {HomeIcon, SettingsIcon, PersonIcon} from '../components/icons';
 import {StatusBar} from 'react-native';
@@ -103,10 +102,7 @@ function MainTabNavigator() {
   useEffect(() => {
     if (localAuth) {
       if (localAuth.user) {
-        console.log('user');
-        console.log(localAuth.user);
         if (localAuth.user.teamId !== undefined) {
-          console.log('team member');
           setIsTeamMember(true);
         }
       }

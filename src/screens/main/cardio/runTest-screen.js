@@ -56,10 +56,15 @@ export const RunTestScreen = ({navigation, route}) => {
   }
 
   // format the run data into a flat array, convert minutes to seconds, remove zero value times
+  // basic logic: after flattening, only even laps can be rests, so we can assign isRest: true to even laps
+  // do not include the rest lap if it has a time value of zero
+  // push the countdown to the beginning of the array
+  // push a zero value lap to the end of the array, which is used to flag the end of run
   useEffect(() => {
     if (status === 'success') {
       let formattedRun = [];
-      for (let i = 0; i < items.runSequence.length; i++) {
+      formattedRun.push({time: countdown, isRest: false});
+      for (let i = 0; i < items.runSequence.length - 9; i++) {
         let restTimeDownfield =
           items.runSequence[i].downfield.restTime.minutes * 60 +
           items.runSequence[i].downfield.restTime.seconds;
@@ -85,6 +90,7 @@ export const RunTestScreen = ({navigation, route}) => {
           formattedRun.push({time: restTimeUpfield, isRest: true});
         }
       }
+      formattedRun.push({time: 0, isRest: false});
       setRunSequence(formattedRun);
       // assign previous ref value
       previousTime.current = formattedRun[0].time;
@@ -160,15 +166,23 @@ export const RunTestScreen = ({navigation, route}) => {
           <View style={{marginBottom: '50%'}}>
             <CountdownCircleTimer
               onComplete={() => {
+                console.log(runSequence[key + 1].time);
+                if (runSequence[key + 1].time === 0) {
+                  setIsPlaying(false);
+                }
                 setKey(prevKey => {
                   const nextKey = prevKey + 1;
                   previousTime.current = runSequence[nextKey].time;
                   return nextKey;
                 });
-                if (runSequence[key + 1].isRest) {
-                  Tts.speak('rest');
+                if (runSequence[key + 1].time > 0) {
+                  if (runSequence[key + 1].isRest) {
+                    Tts.speak('rest');
+                  } else {
+                    Tts.speak('go');
+                  }
                 } else {
-                  Tts.speak('go');
+                  Tts.speak('complete');
                 }
               }}
               isPlaying={isPlaying}
@@ -195,11 +209,19 @@ export const RunTestScreen = ({navigation, route}) => {
                 var seconds = remainingTime % 60;
                 seconds < 10 ? (seconds = `${'0' + seconds}`) : null;
                 minutes < 10 ? (minutes = `${'0' + minutes}`) : null;
-                return (
-                  <Text category="h4" style={{fontSize: 84}}>
-                    {minutes} : {seconds}
-                  </Text>
-                );
+                if (runSequence[key].time > 0) {
+                  return (
+                    <Text category="h4" style={{fontSize: 84}}>
+                      {minutes} : {seconds}
+                    </Text>
+                  );
+                } else {
+                  return (
+                    <Text category="h4" style={{fontSize: 48}}>
+                      Complete
+                    </Text>
+                  );
+                }
               }}
             </CountdownCircleTimer>
           </View>

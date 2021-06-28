@@ -72,7 +72,7 @@ export const EditNameScreen = ({route, navigation}) => {
             <Input
               placeholder={firstName}
               label="First Name"
-              autoFocus={true}
+              autoFocus={false}
               onChangeText={(nextValue) => setFirstName(nextValue)}
             />
             <Input

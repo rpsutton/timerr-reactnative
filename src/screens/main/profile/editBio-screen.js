@@ -70,7 +70,7 @@ export const EditBioScreen = ({route, navigation}) => {
             <Input
               placeholder={bio}
               label="Bio"
-              autoFocus={true}
+              autoFocus={false}
               multiline={true}
               textStyle={{minHeight: 150}}
               maxLength={200}

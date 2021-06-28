@@ -73,7 +73,7 @@ export function JoinTeamScreen({navigation}) {
           secureTextEntry={false}
           onChangeText={(nextValue) => setTeamCode(nextValue)}
           autoCapitalize="none"
-          autoFocus={true}
+          autoFocus={false}
         />
         <Button
           appearance="filled"
