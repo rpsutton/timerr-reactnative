@@ -44,7 +44,10 @@ export const RunTestScreen = ({navigation, route}) => {
     Tts.addEventListener('tts-finish', event => null);
     Tts.addEventListener('tts-cancel', event => null);
     Tts.setDefaultRate(0.55);
+    Tts.setIgnoreSilentSwitch("ignore");
+    Tts.setDucking(true);
     Tts.getInitStatus().then(status => {
+      Tts.stop();
       Tts.speak('run selected');
       setVoiceReady(true);
     });
@@ -193,11 +196,14 @@ export const RunTestScreen = ({navigation, route}) => {
                 });
                 if (runSequence[key + 1].time > 0) {
                   if (runSequence[key + 1].isRest) {
+                    Tts.stop();
                     Tts.speak('rest');
                   } else {
+                    Tts.stop();
                     Tts.speak('go');
                   }
                 } else {
+                  Tts.stop();
                   Tts.speak('complete');
                 }
               }}
@@ -215,10 +221,12 @@ export const RunTestScreen = ({navigation, route}) => {
                     remainingTime > 0 &&
                     remainingTime > countdown
                   ) {
+                    Tts.stop();
                     Tts.speak(remainingTime.toString());
                   }
                   // countdown speach
                   if (remainingTime <= countdown && remainingTime > 0) {
+                    Tts.stop();
                     Tts.speak(remainingTime.toString());
                   }
                   // set previous time to current time
@@ -251,6 +259,7 @@ export const RunTestScreen = ({navigation, route}) => {
               status="success"
               style={styles.beginButton}
               onPress={() => {
+                Tts.stop();
                 Tts.speak(countdown.toString());
                 ReactNativeHapticFeedback.trigger('impactHeavy');
                 setIsPlaying(true);
