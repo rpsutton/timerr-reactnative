@@ -19,23 +19,36 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 export const RunTestScreen = ({navigation, route}) => {
   // read in countdown to start, countdown to 0, announcement interval
-  const interval = 5;
-  const countdown = 5;
+  const interval = route.params.announceInterval;
+  const countdown = route.params.initialCountdown;
   // get widow dimensions for timer
   const windowWidth = useWindowDimensions().width;
   // initialize states and refs
   const [loading, setLoading] = useState(true);
+  // run data
   const [runSequence, setRunSequence] = useState([]);
+  // key to track runsequence index in timer
   const [key, setKey] = useState(0);
+  // timer is playing or not
   const [isPlaying, setIsPlaying] = useState(false);
+  // tts is ready
+  const [voiceReady, setVoiceReady] = useState(false);
+  // first time pressing start
+  const [isFirstStart, setIsFirstStart] = useState(true);
   const previousTime = useRef();
   // initialize style sheet
   const styles = useStyleSheet(themedStyle);
-  // initialize audio
-  Tts.addEventListener('tts-start', event => null);
-  Tts.addEventListener('tts-finish', event => null);
-  Tts.addEventListener('tts-cancel', event => null);
-  Tts.setDefaultRate(0.55);
+  // initialize tts
+  useEffect(() => {
+    Tts.addEventListener('tts-start', event => null);
+    Tts.addEventListener('tts-finish', event => null);
+    Tts.addEventListener('tts-cancel', event => null);
+    Tts.setDefaultRate(0.55);
+    Tts.getInitStatus().then(status => {
+      Tts.speak('run selected');
+      setVoiceReady(true);
+    });
+  }, []);
 
   // get run data
   const {data: items, status} = useRun('bywXlnulWOfiwolwEWfv');
@@ -52,6 +65,7 @@ export const RunTestScreen = ({navigation, route}) => {
     } else {
       setKey(0);
     }
+    setIsFirstStart(true);
     previousTime.current = runSequence[0].time;
   }
 
@@ -64,7 +78,7 @@ export const RunTestScreen = ({navigation, route}) => {
     if (status === 'success') {
       let formattedRun = [];
       formattedRun.push({time: countdown, isRest: false});
-      for (let i = 0; i < items.runSequence.length - 9; i++) {
+      for (let i = 0; i < items.runSequence.length; i++) {
         let restTimeDownfield =
           items.runSequence[i].downfield.restTime.minutes * 60 +
           items.runSequence[i].downfield.restTime.seconds;
@@ -139,7 +153,7 @@ export const RunTestScreen = ({navigation, route}) => {
     );
   };
 
-  if (loading) {
+  if (loading || !voiceReady) {
     return (
       <>
         <TopNavigation
@@ -148,7 +162,9 @@ export const RunTestScreen = ({navigation, route}) => {
           accessoryLeft={CancelButton}
         />
         <Divider />
-        <Layout style={styles.container} level="2">
+        <Layout
+          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+          level="2">
           <Spinner size="giant" />
         </Layout>
       </>
@@ -194,11 +210,15 @@ export const RunTestScreen = ({navigation, route}) => {
               {({remainingTime}) => {
                 if (remainingTime < previousTime.current) {
                   // interval speach
-                  if (remainingTime % interval === 0 && remainingTime > 0) {
+                  if (
+                    remainingTime % interval === 0 &&
+                    remainingTime > 0 &&
+                    remainingTime > countdown
+                  ) {
                     Tts.speak(remainingTime.toString());
                   }
                   // countdown speach
-                  if (remainingTime < countdown && remainingTime > 0) {
+                  if (remainingTime <= countdown && remainingTime > 0) {
                     Tts.speak(remainingTime.toString());
                   }
                   // set previous time to current time
@@ -211,7 +231,7 @@ export const RunTestScreen = ({navigation, route}) => {
                 minutes < 10 ? (minutes = `${'0' + minutes}`) : null;
                 if (runSequence[key].time > 0) {
                   return (
-                    <Text category="h4" style={{fontSize: 84}}>
+                    <Text category="h4" style={{fontSize: 80}}>
                       {minutes} : {seconds}
                     </Text>
                   );
@@ -225,7 +245,20 @@ export const RunTestScreen = ({navigation, route}) => {
               }}
             </CountdownCircleTimer>
           </View>
-          {isPlaying ? (
+          {isFirstStart ? (
+            <Button
+              size="medium"
+              status="success"
+              style={styles.beginButton}
+              onPress={() => {
+                Tts.speak(countdown.toString());
+                ReactNativeHapticFeedback.trigger('impactHeavy');
+                setIsPlaying(true);
+                setIsFirstStart(false);
+              }}>
+              Begin Run
+            </Button>
+          ) : isPlaying ? (
             <Button
               size="medium"
               status="danger"
@@ -274,6 +307,9 @@ const themedStyle = StyleService.create({
   buttonGroup: {
     justifyContent: 'space-between',
     flexDirection: 'row',
+    width: '90%',
+  },
+  beginButton: {
     width: '90%',
   },
   startButton: {

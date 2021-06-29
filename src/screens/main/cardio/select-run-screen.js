@@ -19,7 +19,7 @@ export const SelectRunScreen = ({navigation}, route) => {
   const [categoryIndex, setCategoryIndex] = useState(new IndexPath(0));
   const [runIndex, setRunIndex] = useState(new IndexPath(0));
   const [countdownIndex, setCountdownIndex] = useState(new IndexPath(0));
-  const [announceIncrementIndex, setAnnounceIncrementIndex] = useState(
+  const [announceIntervalIndex, setAnnounceIntervalIndex] = useState(
     new IndexPath(4),
   );
 
@@ -49,7 +49,7 @@ export const SelectRunScreen = ({navigation}, route) => {
   const countdownDisplayValue = countdown[countdownIndex.row].display;
   const renderCountdownOption = (val) => <SelectItem title={val.display} />;
 
-  const announceIncrement = [
+  const announceInterval = [
     {display: '1 seconds', time: 1},
     {display: '2 seconds', time: 2},
     {display: '3 seconds', time: 3},
@@ -60,10 +60,15 @@ export const SelectRunScreen = ({navigation}, route) => {
     {display: '8 seconds', time: 8},
     {display: '9 seconds', time: 9},
     {display: '10 seconds', time: 10},
+    {display: '11 seconds', time: 11},
+    {display: '12 seconds', time: 12},
+    {display: '13 seconds', time: 13},
+    {display: '14 seconds', time: 14},
+    {display: '15 seconds', time: 15},
   ];
-  const announceIncrementDisplayValue =
-    announceIncrement[announceIncrementIndex.row].display;
-  const renderAnnounceIncrementOption = (val) => (
+  const announceIntervalDisplayValue =
+    announceInterval[announceIntervalIndex.row].display;
+  const renderAnnounceIntervalOption = (val) => (
     <SelectItem title={val.display} />
   );
 
@@ -115,10 +120,10 @@ export const SelectRunScreen = ({navigation}, route) => {
               size="large"
               style={styles.bottomSelect}
               placeholder="Default"
-              value={announceIncrementDisplayValue}
-              selectedIndex={announceIncrementIndex}
-              onSelect={(index) => setAnnounceIncrementIndex(index)}>
-              {announceIncrement.map(renderAnnounceIncrementOption)}
+              value={announceIntervalDisplayValue}
+              selectedIndex={announceIntervalIndex}
+              onSelect={(index) => setAnnounceIntervalIndex(index)}>
+              {announceInterval.map(renderAnnounceIntervalOption)}
             </Select>
           </View>
           <Button
@@ -127,8 +132,8 @@ export const SelectRunScreen = ({navigation}, route) => {
             onPress={() =>
               navigation.navigate('Run Test Screen', {
                 initialCountdown: countdown[countdownIndex.row].time,
-                announceIncrement:
-                  announceIncrement[announceIncrementIndex.row].time,
+                announceInterval:
+                  announceInterval[announceIntervalIndex.row].time,
               })
             }>
             Start Run Test
