@@ -93,8 +93,7 @@ export function JoinTeamScreen({navigation}) {
         <Button
           style={styles.footerButton}
           size="small"
-          appearance="outline"
-          status="info"
+          appearance="ghost"
           onPress={() => auth.signout()}>
           Sign Out
         </Button>

@@ -24,6 +24,21 @@ export function createUser(uid, data) {
 /**** ITEMS ****/
 /* Example query functions (modify to your needs) */
 
+// Fetch all runs of a specified team
+export function getRunsByTeam(teamId) {
+  var runs = [];
+  firestore()
+    .collection('runs')
+    .where('teamId', '==', teamId)
+    .get()
+    .then(querySnapshot => {
+      querySnapshot.forEach(documentSnapshot => {
+        runs.push(documentSnapshot.data());
+      });
+    });
+  return runs;
+}
+
 // Fetch all items by owner (hook)
 export function useItemsByOwner(owner) {
   return useQuery(
@@ -60,14 +75,14 @@ export function checkValidTeamId(teamId) {
     .collection('teams')
     .doc(teamId)
     .get()
-    .then((doc) => {
+    .then(doc => {
       if (doc.exists) {
         return true;
       } else {
         return false;
       }
     })
-    .catch((e) => console.log(e));
+    .catch(e => console.log(e));
 }
 
 export function getTeam(teamId) {
@@ -120,7 +135,7 @@ function useQuery(query) {
   // Gives us previous query object if query is the same, ensuring
   // we don't trigger useEffect on every render due to query technically
   // being a new object reference on every render.
-  const queryCached = useMemoCompare(query, (prevQuery) => {
+  const queryCached = useMemoCompare(query, prevQuery => {
     // Use built-in Firestore isEqual method to determine if "equal"
     return prevQuery && query && query.isEqual(prevQuery);
   });
@@ -138,15 +153,14 @@ function useQuery(query) {
     // Subscribe to query with onSnapshot
     // Will unsubscribe on cleanup since this returns an unsubscribe function
     return queryCached.onSnapshot(
-      (response) => {
+      response => {
         // Get data for collection or doc
         const data = response.docs
           ? getCollectionData(response)
           : getDocData(response);
-
         dispatch({type: 'success', payload: data});
       },
-      (error) => {
+      error => {
         dispatch({type: 'error', payload: error});
       },
     );
@@ -163,68 +177,6 @@ function getDocData(doc) {
 // Get array of doc data from collection
 async function getCollectionData(collection) {
   return collection.docs.map(getDocData);
-}
-
-function usePostQuery(query) {
-  const initialState = {
-    status: query ? 'loading' : 'idle',
-    data: undefined,
-    error: undefined,
-  };
-  const [state, dispatch] = useReducer(reducer, initialState);
-  const queryCached = useMemoCompare(query, (prevQuery) => {
-    return prevQuery && query && query.isEqual(prevQuery);
-  });
-
-  useEffect(() => {
-    if (!queryCached) {
-      dispatch({type: 'idle'});
-      return;
-    }
-
-    dispatch({type: 'loading'});
-
-    return queryCached.onSnapshot(
-      (response) => {
-        let posts = [];
-        response.docs.forEach((doc) => {
-          firestore()
-            .collection('posts')
-            .doc(doc.id)
-            .get()
-            .then((postDoc) => {
-              posts.push({
-                ...postDoc.data(),
-                id: postDoc.id,
-              });
-            })
-            .then(() => dispatch({type: 'success', payload: posts}));
-        });
-      },
-      (error) => {
-        dispatch({type: 'error', payload: error});
-      },
-    );
-  }, [queryCached]); // Only run effect if queryCached changes
-
-  return state;
-}
-
-export function usePosts(user) {
-  return usePostQuery(
-    user !== null &&
-      firestore().collection('feeds').doc(user.uid).collection('posts'),
-  );
-}
-
-export function useCreatorPosts(user) {
-  return usePostQuery(
-    user !== null &&
-      firestore()
-        .collection('posts')
-        .where('creatorInfo.creatorUid', '==', user.uid)
-        .orderBy('timeCreated', 'desc'),
-  );
 }
 
 // Used by useQuery to store Firestore query object reference

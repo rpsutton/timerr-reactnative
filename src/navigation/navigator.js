@@ -126,7 +126,7 @@ function MainTabNavigator() {
       );
     } else {
       return (
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: 'white',}}>
           <StatusBar barStyle="dark-content" />
           <JoinTeamScreen />
         </SafeAreaView>
@@ -134,14 +134,14 @@ function MainTabNavigator() {
     }
   } else if (initializing) {
     return (
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white',}}>
         <StatusBar barStyle="dark-content" />
         <InitializingScreen />
       </SafeAreaView>
     );
   } else {
     return (
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white',}}>
         <StatusBar barStyle="dark-content" />
         <AuthScreenStack />
       </SafeAreaView>

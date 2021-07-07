@@ -18,30 +18,49 @@ import {View, ScrollView} from 'react-native';
 import {LargeDrawerIcon} from '../../../components/icons';
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../../../util/auth';
-import {getTeam, useRunsByTeamAndDay} from '../../../util/db';
+import firestore from '@react-native-firebase/firestore';
+//import {getAssignedRuns} from '../../../util/db';
 
 export const HomeScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true);
   const auth = useAuth();
   const [date, setDate] = useState(new Date());
   const [firstName, setFirstName] = useState('...');
-  const [team, setTeam] = useState();
   const styles = useStyleSheet(themedStyle);
-  const runData = ['120s', 'Man U', 'Fartlek'];
   const openDrawer = () => {
     navigation.openDrawer();
   };
 
+  const [runs, setRuns] = useState(undefined);
+
   useEffect(() => {
     let mounted = true;
-    if (auth.user !== undefined && auth.user !== null) {
+    if (auth.user !== undefined) {
       setFirstName(auth.user.firstName);
-      getTeam(auth.user.teamId)
-        .then((doc) => setTeam(doc.data()))
+      var currentTime = new Date();
+      let data = [];
+      firestore()
+        .collection('events')
+        .where('resource.teamId', '==', auth.user.teamId)
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(documentSnapshot => {
+            // must include end boundry condition here
+            if (
+              documentSnapshot.data().start.toDate() <= currentTime &&
+              documentSnapshot.data().end.toDate() >= currentTime
+            ) {
+              console.log(documentSnapshot.data().start.toDate());
+              data.push(documentSnapshot.data());
+            }
+          });
+          setRuns(data);
+        })
         .then(() => setLoading(false))
-        .catch((e) => console.log(e))
+        .catch(e => console.log(e));
+      setLoading(false);
+      return () => (mounted = false);
     }
-    return () => (mounted = false);
   }, [auth.user]);
 
   const DrawerAction = () => (
@@ -49,37 +68,27 @@ export const HomeScreen = ({navigation}) => {
   );
 
   const renderItem = ({item, index}) => {
+    if (item === null || item === undefined) {
+      <Text category="s1">No runs assigned today</Text>;
+    }
     if (index === 0) {
       return (
         <Layout style={styles.renderFirstItemContainer} level="1">
-          <Text category="s1">{item}</Text>
+          <Text category="s1">{item.title}</Text>
           <Divider />
         </Layout>
       );
-    } else if (index === runData.length - 1 && index % 2 === 1) {
+    } else if (index === runs.length - 1 && index % 2 === 0) {
       return (
         <Layout style={styles.renderLastItemContainer} level="1">
-          <Text category="s1">{item}</Text>
+          <Text category="s1">{item.title}</Text>
           <Divider />
-        </Layout>
-      );
-    } else if (index === runData.length - 1 && index % 2 === 0) {
-      return (
-        <Layout style={styles.renderLastItemContainer} level="1">
-          <Text category="s1">{item}</Text>
-          <Divider />
-        </Layout>
-      );
-    } else if (index % 2 === 0) {
-      return (
-        <Layout style={styles.renderItemContainer} level="1">
-          <Text category="s1">{item}</Text>
         </Layout>
       );
     } else {
       return (
         <Layout style={styles.renderItemContainer} level="1">
-          <Text category="s1">{item}</Text>
+          <Text category="s1">{item.title}</Text>
           <Divider />
         </Layout>
       );
@@ -90,7 +99,7 @@ export const HomeScreen = ({navigation}) => {
     return (
       <Layout style={styles.viewWorkoutContainer}>
         <Text category="h4">Hello, {firstName}.</Text>
-        <Text category="s1" appearance="hint">
+        <Text category="h6" appearance="hint">
           Welcome back, go and get it! 🏃
         </Text>
       </Layout>
@@ -149,14 +158,18 @@ export const HomeScreen = ({navigation}) => {
         <Button
           style={styles.footerButton}
           size="giant"
-          onPress={() => navigation.navigate('Select Run Screen')}>
+          onPress={() =>
+            navigation.navigate('Select Run Screen', {
+              teamId: auth.user.teamId,
+            })
+          }>
           Practice My Runs
         </Button>
         <Calendar
           renderDay={DayCell}
           style={styles.calendar}
           date={date}
-          onSelect={(nextDate) => setDate(nextDate)}
+          onSelect={nextDate => setDate(nextDate)}
           renderFooter={CalendarFooter}
         />
         <Button style={styles.calendarButton} appearance="ghost" size="small">
@@ -179,30 +192,34 @@ export const HomeScreen = ({navigation}) => {
     );
   };
 
-  return (
-    <>
-      <TopNavigation
-        title="Home"
-        alignment="center"
-        accessoryLeft={DrawerAction}
-      />
-      <Divider />
-      <Layout style={styles.container} level="2">
-        {loading ? (
-          <Spinner size="large" status="primary" />
-        ) : (
+  if (loading || runs === undefined) {
+    return (
+      <Layout style={styles.loadingContainer} level="2">
+        <Spinner size="giant" status="primary" />
+      </Layout>
+    );
+  } else {
+    return (
+      <>
+        <TopNavigation
+          title="Home"
+          alignment="center"
+          accessoryLeft={DrawerAction}
+        />
+        <Divider />
+        <Layout style={styles.container} level="2">
           <List
-            data={runData}
+            data={runs}
             renderItem={renderItem}
             ListHeaderComponent={TeamRunsCardHeader}
             ListFooterComponent={ListFooter}
             style={styles.list}
             showsVerticalScrollIndicator={false}
           />
-        )}
-      </Layout>
-    </>
-  );
+        </Layout>
+      </>
+    );
+  }
 };
 
 const themedStyle = StyleService.create({
@@ -210,6 +227,11 @@ const themedStyle = StyleService.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   italic: {
     fontStyle: 'italic',
