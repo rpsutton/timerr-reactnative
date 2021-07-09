@@ -56,6 +56,16 @@ export function updateItem(id, data) {
   return firestore().collection('items').doc(id).update(data);
 }
 
+export function setEventComplete(eventId, uid) {
+  return firestore()
+    .collection('events')
+    .doc(eventId)
+    .update({
+      eventCompletedPlayers: firestore.FieldValue.arrayUnion(uid),
+    })
+    .catch(e => console.log(e));
+}
+
 // Create a new item
 export function createItem(data) {
   return firestore().collection('items').add(data);

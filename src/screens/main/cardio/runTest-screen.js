@@ -14,10 +14,11 @@ import {
 import {Alert, View, useWindowDimensions} from 'react-native';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
 import Tts from 'react-native-tts';
-import {useRun} from '../../../util/db';
+import {useRun, setEventComplete} from '../../../util/db';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 export const RunTestScreen = ({navigation, route}) => {
+  const uid = route.params.uid;
   // read in countdown to start, countdown to 0, announcement interval
   const interval = route.params.announceInterval;
   const countdown = route.params.initialCountdown;
@@ -54,7 +55,7 @@ export const RunTestScreen = ({navigation, route}) => {
   }, []);
 
   // get run data
-  const {data: items, status} = useRun('bywXlnulWOfiwolwEWfv');
+  const {data: items, status} = useRun('dpO4BNvtNLj1sKnXbmOM');
 
   // this is not great because the timer resets only when key is altered
   // resetting means moving the key to 0, but if the key is already at 0 nothing will happen unil onComplete
@@ -205,6 +206,9 @@ export const RunTestScreen = ({navigation, route}) => {
                 } else {
                   Tts.stop();
                   Tts.speak('complete');
+                  // make sure to get the eventId from prev screen
+                  // conditionally execute this, only if event id exists
+                  setEventComplete('52zq7s79oC8fyzucadfb', uid);
                 }
               }}
               isPlaying={isPlaying}

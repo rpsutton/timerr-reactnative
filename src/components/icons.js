@@ -13,9 +13,6 @@ const PaperPlaneIcon = (props) => <Icon name="paper-plane-outline" {...props} />
 const DrawerIcon = (props) => <Icon name="menu-outline" {...props} />;
 const LargeDrawerIcon = (props) => ( <Icon {...props} name="menu-outline" style={[props.style, {width: 35, height: 35}]} />);
 const SettingsIcon = (props) => <Icon name="settings-outline" {...props} />;
-const LikeIcon = (props) => <Icon name="heart-outline" {...props} />;
-const CommentIcon = (props) => <Icon name="message-square-outline" {...props} />;
-const ShareIcon = (props) => <Icon name="share-outline" {...props} />;
 const AlertIcon = (props) => <Icon {...props} name="alert-circle-outline" />;
 const PersonIcon = (props) => <Icon {...props} name="person-outline" />;
 const EmailIcon = (props) => <Icon {...props} name="email-outline" />;
@@ -29,9 +26,8 @@ const ShortTextIcon = (props) => <Icon {...props} name="file-remove-outline" />;
 const ImageIcon = (props) => <Icon {...props} name="image-outline" />;
 const LinkIcon = (props) => <Icon {...props} name="link-2-outline" />;
 const InfoIcon = (props) => <Icon {...props} name="info-outline" />;
-const PlayIcon = (props) => <Icon {...props} name="play-circle" style={[props.style, {width: 100, height: 100}]}/>;
-const PauseIcon = (props) => <Icon {...props} name="pause-circle" style={[props.style, {width: 100, height: 100}]}/>;
-const PinIcon = (props) => <Icon {...props} name="pin-outline" style={[props.style, {width: 15, height: 15}]}/>;
+const FailureIcon = (props) => <Icon {...props} name="close-outline" style={[props.style, {width: 20, height: 20}]} fill="#f1100b"/>;
+const SuccessIcon = (props) => <Icon {...props} name="checkmark" style={[props.style, {width: 20, height: 20}]} fill="#87C946"/>;
 
 export {
   HomeIcon,
@@ -44,9 +40,6 @@ export {
   DrawerIcon,
   LargeDrawerIcon,
   SettingsIcon,
-  LikeIcon,
-  CommentIcon,
-  ShareIcon,
   AlertIcon,
   PersonIcon,
   EmailIcon,
@@ -60,7 +53,6 @@ export {
   ImageIcon,
   LinkIcon,
   InfoIcon,
-  PlayIcon,
-  PauseIcon,
-  PinIcon,
+  FailureIcon,
+  SuccessIcon,
 };

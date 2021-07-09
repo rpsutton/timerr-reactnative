@@ -10,11 +10,15 @@ import {
   IndexPath,
   Select,
   SelectItem,
+  Card,
+  Divider,
 } from '@ui-kitten/components';
 import {View, ScrollView} from 'react-native';
-import {LargeBackIcon} from '../../../components/icons';
+import {LargeBackIcon, FailureIcon} from '../../../components/icons';
 
-export const SelectRunScreen = ({navigation}, route) => {
+export const SelectRunScreen = ({navigation, route}) => {
+  const todaysRuns = route.params.todaysRuns;
+  const uid = route.params.uid;
   const styles = useStyleSheet(themedStyle);
   const [categoryIndex, setCategoryIndex] = useState(new IndexPath(0));
   const [runIndex, setRunIndex] = useState(new IndexPath(0));
@@ -32,11 +36,11 @@ export const SelectRunScreen = ({navigation}, route) => {
 
   const data = ['120s', 'Man U', 'Fartlek'];
   const runDisplayValue = data[runIndex.row].runName;
-  const renderRunOption = (runTest) => <SelectItem title={runTest} />;
+  const renderRunOption = runTest => <SelectItem title={runTest} />;
 
   const categories = ['My Team runs', 'My Custom Runs', 'My Saved Runs'];
   const categoryDisplayValue = categories[categoryIndex.row];
-  const renderCategoryOption = (category) => <SelectItem title={category} />;
+  const renderCategoryOption = category => <SelectItem title={category} />;
 
   const countdown = [
     {display: '5 seconds', time: 5},
@@ -47,7 +51,7 @@ export const SelectRunScreen = ({navigation}, route) => {
     {display: '30 seconds', time: 30},
   ];
   const countdownDisplayValue = countdown[countdownIndex.row].display;
-  const renderCountdownOption = (val) => <SelectItem title={val.display} />;
+  const renderCountdownOption = val => <SelectItem title={val.display} />;
 
   const announceInterval = [
     {display: '1 seconds', time: 1},
@@ -68,8 +72,22 @@ export const SelectRunScreen = ({navigation}, route) => {
   ];
   const announceIntervalDisplayValue =
     announceInterval[announceIntervalIndex.row].display;
-  const renderAnnounceIntervalOption = (val) => (
+  const renderAnnounceIntervalOption = val => (
     <SelectItem title={val.display} />
+  );
+
+  const Header = props => (
+    <View {...props}>
+      <Text category="h6">Today's Assigned Runs</Text>
+    </View>
+  );
+
+  const Footer = props => (
+    <View {...props}>
+      <Text category="s1" status="danger">
+        Runs Incomplete
+      </Text>
+    </View>
   );
 
   return (
@@ -79,11 +97,28 @@ export const SelectRunScreen = ({navigation}, route) => {
         alignment="center"
         accessoryLeft={BackAction}
       />
-      <Layout style={styles.container} level="1">
+      <Layout style={styles.container} level="3">
         <ScrollView contentContainerStyle={styles.contentContainerStyle}>
-          <Text category="h1" style={styles.selectRunText}>
-            Select Run Test
-          </Text>
+          <Card
+            style={{width: '100%', marginBottom: '2%', marginTop: '3%'}}
+            status="danger"
+            header={Header}
+            footer={Footer}>
+            {todaysRuns.map((item, arr) => {
+              return (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                  }}>
+                  <Text category="s1">{item.title}</Text>
+                  <FailureIcon />
+                  <Divider />
+                </View>
+              );
+            })}
+          </Card>
           <Select
             label="Select Run From"
             size="large"
@@ -91,7 +126,7 @@ export const SelectRunScreen = ({navigation}, route) => {
             placeholder="Default"
             value={categoryDisplayValue}
             selectedIndex={categoryIndex}
-            onSelect={(index) => setCategoryIndex(index)}>
+            onSelect={index => setCategoryIndex(index)}>
             {categories.map(renderCategoryOption)}
           </Select>
           <Select
@@ -101,7 +136,7 @@ export const SelectRunScreen = ({navigation}, route) => {
             placeholder="Default"
             value={runDisplayValue}
             selectedIndex={runIndex}
-            onSelect={(index) => setRunIndex(index)}>
+            onSelect={index => setRunIndex(index)}>
             {data.map(renderRunOption)}
           </Select>
           <View style={styles.bottomSelections}>
@@ -112,7 +147,7 @@ export const SelectRunScreen = ({navigation}, route) => {
               placeholder="Default"
               value={countdownDisplayValue}
               selectedIndex={countdownIndex}
-              onSelect={(index) => setCountdownIndex(index)}>
+              onSelect={index => setCountdownIndex(index)}>
               {countdown.map(renderCountdownOption)}
             </Select>
             <Select
@@ -122,7 +157,7 @@ export const SelectRunScreen = ({navigation}, route) => {
               placeholder="Default"
               value={announceIntervalDisplayValue}
               selectedIndex={announceIntervalIndex}
-              onSelect={(index) => setAnnounceIntervalIndex(index)}>
+              onSelect={index => setAnnounceIntervalIndex(index)}>
               {announceInterval.map(renderAnnounceIntervalOption)}
             </Select>
           </View>
@@ -131,6 +166,7 @@ export const SelectRunScreen = ({navigation}, route) => {
             size="giant"
             onPress={() =>
               navigation.navigate('Run Test Screen', {
+                uid: uid,
                 initialCountdown: countdown[countdownIndex.row].time,
                 announceInterval:
                   announceInterval[announceIntervalIndex.row].time,
@@ -150,8 +186,7 @@ const themedStyle = StyleService.create({
     width: '100%',
   },
   contentContainerStyle: {
-    flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
     alignSelf: 'center',
     width: '95%',
