@@ -23,10 +23,12 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../../../util/auth';
 import firestore from '@react-native-firebase/firestore';
+import { getRunsByTeam } from '../../../util/db';
 
 export const HomeScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true);
-  const [runsComplete, setRunsComplete] = useState(0);
+  const [teamRuns, setTeamRuns] = useState(undefined);
+  const [eventsComplete, setEventsComplete] = useState(0);
   const auth = useAuth();
   const [date, setDate] = useState(new Date());
   const [firstName, setFirstName] = useState('...');
@@ -35,12 +37,11 @@ export const HomeScreen = ({navigation}) => {
     navigation.openDrawer();
   };
 
-  const [runs, setRuns] = useState(undefined);
+  const [events, setevents] = useState(undefined);
 
   useEffect(() => {
     let mounted = true;
     if (auth.user !== undefined) {
-      console.log(auth.user);
       setFirstName(auth.user.firstName);
       var currentTime = new Date();
       let data = [];
@@ -57,7 +58,7 @@ export const HomeScreen = ({navigation}) => {
             ) {
               let doc = documentSnapshot.data();
               if (doc.eventCompletedPlayers.includes(auth.user.uid)) {
-                setRunsComplete(prevNum => {
+                setEventsComplete(prevNum => {
                   const nextNum = prevNum + 1;
                   return nextNum;
                 });
@@ -65,9 +66,11 @@ export const HomeScreen = ({navigation}) => {
               data.push(documentSnapshot.data());
             }
           });
-          setRuns(data);
+          setevents(data);
         })
-        .then(() => setLoading(false))
+        .then(() => {
+          setTeamRuns(getRunsByTeam(auth.user.teamId));
+        })
         .catch(e => console.log(e));
       setLoading(false);
       return () => (mounted = false);
@@ -88,33 +91,33 @@ export const HomeScreen = ({navigation}) => {
   );
 
   const Footer = props => {
-    if (runsComplete <= 0) {
+    if (eventsComplete <= 0) {
       return (
         <View {...props}>
           <Text category="s1" status="danger">
-            {runsComplete}/{runs.length} Assigned Runs Complete
+            {eventsComplete}/{events.length} Assigned events Complete
           </Text>
         </View>
       );
-    } else if (runsComplete > 0 && runsComplete < runs.length) {
+    } else if (eventsComplete > 0 && eventsComplete < events.length) {
       return (
         <View {...props}>
           <Text category="s1" status="warning">
-            {runsComplete}/{runs.length} Assigned Runs Complete
+            {eventsComplete}/{events.length} Assigned events Complete
           </Text>
         </View>
       );
     } else {
       <View {...props}>
         <Text category="s1" status="success">
-          {runsComplete}/{runs.length} Assigned Runs Complete
+          {eventsComplete}/{events.length} Assigned Runs Complete
         </Text>
       </View>;
     }
   };
 
   const GreetingCard = () => {
-    if (runs.length === 0) {
+    if (events.length === 0) {
       return (
         <Card
           style={styles.viewWorkoutContainer}
@@ -135,7 +138,7 @@ export const HomeScreen = ({navigation}) => {
           <Text category="h4" style={{marginBottom: '2%'}}>
             Todays Assigned Runs
           </Text>
-          {runs.map((item, index) => {
+          {events.map((item, index) => {
             if (item.eventCompletedPlayers.includes(auth.user.uid)) {
             }
             return (
@@ -209,10 +212,12 @@ export const HomeScreen = ({navigation}) => {
             navigation.navigate('Select Run Screen', {
               teamId: auth.user.teamId,
               uid: auth.user.id,
-              todaysRuns: runs,
+              todaysEvents: events,
+              eventsComplete: eventsComplete,
+              teamRuns: teamRuns,
             })
           }>
-          Practice My Runs
+          Go To My Runs
         </Button>
         <Calendar
           renderDay={DayCell}
@@ -232,13 +237,13 @@ export const HomeScreen = ({navigation}) => {
         end={{x: 1, y: 0}}
         colors={['#3366FF', '#0095FF']}>
         <Text category="c1" style={styles.calendarFooterText} status="control">
-          You practiced 32 runs on 9 days this month 💪
+          You completed 86% of assigned runs this month 💪
         </Text>
       </LinearGradient>
     );
   };
 
-  if (loading || runs === undefined) {
+  if (loading || events === undefined) {
     return (
       <Layout style={styles.loadingContainer} level="2">
         <Spinner size="giant" status="primary" />

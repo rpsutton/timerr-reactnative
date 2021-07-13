@@ -14,11 +14,13 @@ import {
 import {Alert, View, useWindowDimensions} from 'react-native';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
 import Tts from 'react-native-tts';
-import {useRun, setEventComplete} from '../../../util/db';
+import {setEventComplete} from '../../../util/db';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 export const RunTestScreen = ({navigation, route}) => {
+  const run = route.params.run;
   const uid = route.params.uid;
+  const eventId = route.params.eventId;
   // read in countdown to start, countdown to 0, announcement interval
   const interval = route.params.announceInterval;
   const countdown = route.params.initialCountdown;
@@ -45,7 +47,7 @@ export const RunTestScreen = ({navigation, route}) => {
     Tts.addEventListener('tts-finish', event => null);
     Tts.addEventListener('tts-cancel', event => null);
     Tts.setDefaultRate(0.55);
-    Tts.setIgnoreSilentSwitch("ignore");
+    Tts.setIgnoreSilentSwitch('ignore');
     Tts.setDucking(true);
     Tts.getInitStatus().then(status => {
       Tts.stop();
@@ -53,9 +55,6 @@ export const RunTestScreen = ({navigation, route}) => {
       setVoiceReady(true);
     });
   }, []);
-
-  // get run data
-  const {data: items, status} = useRun('dpO4BNvtNLj1sKnXbmOM');
 
   // this is not great because the timer resets only when key is altered
   // resetting means moving the key to 0, but if the key is already at 0 nothing will happen unil onComplete
@@ -79,22 +78,22 @@ export const RunTestScreen = ({navigation, route}) => {
   // push the countdown to the beginning of the array
   // push a zero value lap to the end of the array, which is used to flag the end of run
   useEffect(() => {
-    if (status === 'success') {
+    if (run !== undefined) {
       let formattedRun = [];
       formattedRun.push({time: countdown, isRest: false});
-      for (let i = 0; i < items.runSequence.length; i++) {
+      for (let i = 0; i < run.runSequence.length; i++) {
         let restTimeDownfield =
-          items.runSequence[i].downfield.restTime.minutes * 60 +
-          items.runSequence[i].downfield.restTime.seconds;
+          run.runSequence[i].downfield.restTime.minutes * 60 +
+          run.runSequence[i].downfield.restTime.seconds;
         let targetTimeDownfield =
-          items.runSequence[i].downfield.targetTime.minutes * 60 +
-          items.runSequence[i].downfield.targetTime.seconds;
+          run.runSequence[i].downfield.targetTime.minutes * 60 +
+          run.runSequence[i].downfield.targetTime.seconds;
         let restTimeUpfield =
-          items.runSequence[i].upfield.restTime.minutes * 60 +
-          items.runSequence[i].upfield.restTime.seconds;
+          run.runSequence[i].upfield.restTime.minutes * 60 +
+          run.runSequence[i].upfield.restTime.seconds;
         let targetTimeUpfield =
-          items.runSequence[i].upfield.targetTime.minutes * 60 +
-          items.runSequence[i].upfield.targetTime.seconds;
+          run.runSequence[i].upfield.targetTime.minutes * 60 +
+          run.runSequence[i].upfield.targetTime.seconds;
 
         formattedRun.push({time: targetTimeDownfield, isRest: false});
 
@@ -114,7 +113,7 @@ export const RunTestScreen = ({navigation, route}) => {
       previousTime.current = formattedRun[0].time;
       setLoading(false);
     }
-  }, [status, items]);
+  }, [countdown, run]);
 
   const normalColors = [
     ['#439B12', 0.1],
@@ -208,7 +207,9 @@ export const RunTestScreen = ({navigation, route}) => {
                   Tts.speak('complete');
                   // make sure to get the eventId from prev screen
                   // conditionally execute this, only if event id exists
-                  setEventComplete('52zq7s79oC8fyzucadfb', uid);
+                  if (eventId !== undefined) {
+                    setEventComplete(eventId, uid);
+                  }
                 }
               }}
               isPlaying={isPlaying}

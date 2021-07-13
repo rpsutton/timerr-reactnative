@@ -5,6 +5,8 @@ import {createDrawerNavigator} from '@react-navigation/drawer';
 import {InitializingScreen} from './initializing-screen';
 import {HomeScreen} from '../screens/main/home/home-screen';
 import {SelectRunScreen} from '../screens/main/cardio/select-run-screen';
+import {ConfirmRunScreen} from '../screens/main/cardio/confirm-run-screen';
+import {ConfirmEventScreen} from '../screens/main/cardio/confirm-event-screen';
 import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
 import {DetailsScreen} from '../screens/main/settings-screen';
 import {SignOutScreen} from '../screens/main/signOut-screen';
@@ -31,6 +33,11 @@ const HomeScreenStack = () => {
     <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
       <Stack.Screen name="Home Screen" component={HomeScreen} />
       <Stack.Screen name="Select Run Screen" component={SelectRunScreen} />
+      <Stack.Screen name="Confirm Run Screen" component={ConfirmRunScreen} />
+      <Stack.Screen
+        name="Confirm Event Screen"
+        component={ConfirmEventScreen}
+      />
       <Stack.Screen
         name="Run Test Screen"
         component={RunTestScreen}
@@ -126,7 +133,7 @@ function MainTabNavigator() {
       );
     } else {
       return (
-        <SafeAreaView style={{flex: 1, backgroundColor: 'white',}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
           <StatusBar barStyle="dark-content" />
           <JoinTeamScreen />
         </SafeAreaView>
@@ -134,14 +141,14 @@ function MainTabNavigator() {
     }
   } else if (initializing) {
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: 'white',}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <StatusBar barStyle="dark-content" />
         <InitializingScreen />
       </SafeAreaView>
     );
   } else {
     return (
-      <SafeAreaView style={{flex: 1, backgroundColor: 'white',}}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <StatusBar barStyle="dark-content" />
         <AuthScreenStack />
       </SafeAreaView>
