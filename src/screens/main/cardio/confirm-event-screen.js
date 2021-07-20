@@ -17,8 +17,9 @@ import {useRun} from '../../../util/db';
 export const ConfirmEventScreen = ({navigation, route}) => {
   const initialCountdown = route.params.initialCountdown;
   const announceInterval = route.params.announceInterval;
-  const eventId = route.params.event.id;
-  const runId = route.params.event.resource.runId;
+  const eventItem = route.params.eventItem;
+  const runId = route.params.eventItem.event.resource.runId;
+  const uid = route.params.uid;
   const styles = useStyleSheet(themedStyle);
 
   const {data: items, status} = useRun(runId);
@@ -77,6 +78,7 @@ export const ConfirmEventScreen = ({navigation, route}) => {
         <Layout style={styles.container} level="2">
           <ScrollView contentContainerStyle={styles.contentContainerStyle}>
             <Card
+              disabled={true}
               status="primary"
               header={Header}
               footer={Footer}
@@ -103,7 +105,8 @@ export const ConfirmEventScreen = ({navigation, route}) => {
                     initialCountdown: initialCountdown,
                     announceInterval: announceInterval,
                     run: items,
-                    eventId: eventId,
+                    eventItem: eventItem,
+                    uid: uid,
                   })
                 }>
                 Confirm

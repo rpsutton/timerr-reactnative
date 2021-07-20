@@ -23,7 +23,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useAuth} from '../../../util/auth';
 import firestore from '@react-native-firebase/firestore';
-import { getRunsByTeam } from '../../../util/db';
+import {getRunsByTeam} from '../../../util/db';
 
 export const HomeScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true);
@@ -63,7 +63,10 @@ export const HomeScreen = ({navigation}) => {
                   return nextNum;
                 });
               }
-              data.push(documentSnapshot.data());
+              data.push({
+                event: documentSnapshot.data(),
+                id: documentSnapshot.id,
+              });
             }
           });
           setevents(data);
@@ -120,6 +123,7 @@ export const HomeScreen = ({navigation}) => {
     if (events.length === 0) {
       return (
         <Card
+          disabled={true}
           style={styles.viewWorkoutContainer}
           status="primary"
           header={Header}>
@@ -131,6 +135,7 @@ export const HomeScreen = ({navigation}) => {
     } else {
       return (
         <Card
+          disabled={true}
           style={styles.viewWorkoutContainer}
           status="primary"
           header={Header}
@@ -139,8 +144,6 @@ export const HomeScreen = ({navigation}) => {
             Todays Assigned Runs
           </Text>
           {events.map((item, index) => {
-            if (item.eventCompletedPlayers.includes(auth.user.uid)) {
-            }
             return (
               <View
                 key={index}
@@ -150,8 +153,8 @@ export const HomeScreen = ({navigation}) => {
                   justifyContent: 'flex-start',
                   marginBottom: '1%',
                 }}>
-                <Text category="s1">- {item.title}</Text>
-                {item.eventCompletedPlayers.includes(auth.user.uid) ? (
+                <Text category="s1">- {item.event.title}</Text>
+                {item.event.eventCompletedPlayers.includes(auth.user.uid) ? (
                   <SuccessIcon />
                 ) : (
                   <FailureIcon />

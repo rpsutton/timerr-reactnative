@@ -73,6 +73,7 @@ export const ConfirmRunScreen = ({navigation, route}) => {
       <Layout style={styles.container} level="3">
         <ScrollView contentContainerStyle={styles.contentContainerStyle}>
           <Card
+            disabled={true}
             status="primary"
             header={Header}
             footer={Footer}

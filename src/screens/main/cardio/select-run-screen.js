@@ -46,8 +46,8 @@ export const SelectRunScreen = ({navigation, route}) => {
     setChecked(isChecked);
   };
 
-  const rendereventOption = event => (
-    <SelectItem title={event.title} key={eventIndex} />
+  const rendereventOption = ev => (
+    <SelectItem title={ev.event.title} key={eventIndex} />
   );
 
   const runDisplayValue = teamRuns[runIndex.row].runName;
@@ -120,7 +120,7 @@ export const SelectRunScreen = ({navigation, route}) => {
   const EventsSection = () => {
     if (events.length === 0) {
       return (
-        <Card style={styles.viewWorkoutContainer} status="primary">
+        <Card style={styles.viewWorkoutContainer} status="primary" disabled={true}>
           <Text category="h6" status="primary">
             No Runs Assigned Today
           </Text>
@@ -129,6 +129,7 @@ export const SelectRunScreen = ({navigation, route}) => {
     } else {
       return (
         <Card
+        disabled={true}
           style={styles.viewWorkoutContainer}
           status="primary"
           footer={Footer}>
@@ -136,7 +137,7 @@ export const SelectRunScreen = ({navigation, route}) => {
             Todays Assigned Runs
           </Text>
           {events.map((item, index) => {
-            if (item.eventCompletedPlayers.includes(uid)) {
+            if (item.event.eventCompletedPlayers.includes(uid)) {
             }
             return (
               <View
@@ -147,8 +148,8 @@ export const SelectRunScreen = ({navigation, route}) => {
                   justifyContent: 'flex-start',
                   marginBottom: '1%',
                 }}>
-                <Text category="s1">- {item.title}</Text>
-                {item.eventCompletedPlayers.includes(uid) ? (
+                <Text category="s1">- {item.event.title}</Text>
+                {item.event.eventCompletedPlayers.includes(uid) ? (
                   <SuccessIcon />
                 ) : (
                   <FailureIcon />
@@ -185,7 +186,7 @@ export const SelectRunScreen = ({navigation, route}) => {
                 size="large"
                 style={styles.select}
                 placeholder="Default"
-                value={events[eventIndex.row].title}
+                value={events[eventIndex.row].event.title}
                 selectedIndex={eventIndex}
                 onSelect={index => seteventIndex(index)}>
                 {events.map(rendereventOption)}
@@ -235,7 +236,8 @@ export const SelectRunScreen = ({navigation, route}) => {
                     initialCountdown: countdown[countdownIndex.row].time,
                     announceInterval:
                       announceInterval[announceIntervalIndex.row].time,
-                    event: events[eventIndex.row],
+                    eventItem: events[eventIndex.row],
+                    uid: uid,
                   })
                 }>
                 Select Run
@@ -311,7 +313,6 @@ export const SelectRunScreen = ({navigation, route}) => {
               size="giant"
               onPress={() =>
                 navigation.navigate('Confirm Run Screen', {
-                  uid: uid,
                   initialCountdown: countdown[countdownIndex.row].time,
                   announceInterval:
                     announceInterval[announceIntervalIndex.row].time,

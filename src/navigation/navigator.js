@@ -11,9 +11,8 @@ import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
 import {DetailsScreen} from '../screens/main/settings-screen';
 import {SignOutScreen} from '../screens/main/signOut-screen';
 import {ProfileScreen} from '../screens/main/profile/profile-screen';
-import {EditProfileScreen} from '../screens/main/profile/editProfile-screen';
+import {EditTeamMembershipScreen} from '../screens/main/profile/editTeamMembership-screen';
 import {EditNameScreen} from '../screens/main/profile/editName-screen';
-import {EditBioScreen} from '../screens/main/profile/editBio-screen';
 import {SignInScreen} from '../screens/auth/signIn-screen';
 import {SignUpScreen} from '../screens/auth/signUp-screen';
 import {JoinTeamScreen} from '../screens/auth/joinTeam-screen';
@@ -51,9 +50,11 @@ const ProfileStack = () => {
   return (
     <Stack.Navigator headerMode="none" initialRouteName="Profile">
       <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="Edit Profile" component={EditProfileScreen} />
+      <Stack.Screen
+        name="Edit Team Membership"
+        component={EditTeamMembershipScreen}
+      />
       <Stack.Screen name="Edit Name" component={EditNameScreen} />
-      <Stack.Screen name="Edit Bio" component={EditBioScreen} />
     </Stack.Navigator>
   );
 };

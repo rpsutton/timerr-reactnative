@@ -13,7 +13,7 @@ import {
 import {updateUser} from '../../../util/db';
 
 export const EditNameScreen = ({route, navigation}) => {
-  const user = route.params.userData;
+  const user = route.params.user;
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
   const [loading, setLoading] = useState('');
@@ -63,19 +63,21 @@ export const EditNameScreen = ({route, navigation}) => {
         accessoryLeft={GoBackButton}
         accessoryRight={SaveButton}
       />
-      <Layout style={{flex: 1}} level="4">
+      <Layout style={{flex: 1}} level="2">
         <ScrollView contentContainerStyle={styles.layout}>
           <Modal visible={loading} backdropStyle={styles.backdrop}>
             <Spinner size="giant" status="basic" />
           </Modal>
-          <Layout style={styles.bioContainer} level="4">
+          <Layout style={styles.bioContainer} level="2">
             <Input
+              size="large"
               placeholder={firstName}
               label="First Name"
               autoFocus={false}
               onChangeText={(nextValue) => setFirstName(nextValue)}
             />
             <Input
+              size="large"
               placeholder={lastName}
               label="Last Name"
               onChangeText={(nextValue) => setLastName(nextValue)}

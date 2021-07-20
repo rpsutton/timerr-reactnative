@@ -95,8 +95,8 @@ export function checkValidTeamId(teamId) {
     .catch(e => console.log(e));
 }
 
-export function getTeam(teamId) {
-  return firestore().collection('teams').doc(teamId).get();
+export function useTeam(teamId) {
+  return useQuery(teamId && firestore().collection('teams').doc(teamId));
 }
 
 export function useRunsByTeamAndDay(teamId, date) {

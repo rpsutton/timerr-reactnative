@@ -20,7 +20,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 export const RunTestScreen = ({navigation, route}) => {
   const run = route.params.run;
   const uid = route.params.uid;
-  const eventId = route.params.eventId;
+  const event = route.params.eventItem;
   // read in countdown to start, countdown to 0, announcement interval
   const interval = route.params.announceInterval;
   const countdown = route.params.initialCountdown;
@@ -34,6 +34,8 @@ export const RunTestScreen = ({navigation, route}) => {
   const [key, setKey] = useState(0);
   // timer is playing or not
   const [isPlaying, setIsPlaying] = useState(false);
+  // run is complete
+  const [isComplete, setIsComplete] = useState(false);
   // tts is ready
   const [voiceReady, setVoiceReady] = useState(false);
   // first time pressing start
@@ -158,25 +160,17 @@ export const RunTestScreen = ({navigation, route}) => {
 
   if (loading || !voiceReady) {
     return (
-      <>
-        <TopNavigation
-          title="Farlick Run"
-          alignment="center"
-          accessoryLeft={CancelButton}
-        />
-        <Divider />
-        <Layout
-          style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
-          level="2">
-          <Spinner size="giant" />
-        </Layout>
-      </>
+      <Layout
+        style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
+        level="2">
+        <Spinner size="giant" />
+      </Layout>
     );
   } else {
     return (
       <>
         <TopNavigation
-          title="Farlick Run"
+          title={run.runName}
           alignment="center"
           accessoryLeft={CancelButton}
         />
@@ -203,13 +197,16 @@ export const RunTestScreen = ({navigation, route}) => {
                     Tts.speak('go');
                   }
                 } else {
+                  setIsComplete(true);
                   Tts.stop();
                   Tts.speak('complete');
                   // make sure to get the eventId from prev screen
                   // conditionally execute this, only if event id exists
-                  if (eventId !== undefined) {
-                    setEventComplete(eventId, uid);
+                  if (event !== undefined && event !== null) {
+                    console.log(event.id);
+                    setEventComplete(event.id, uid);
                   }
+                  navigation.navigate('Home Screen');
                 }
               }}
               isPlaying={isPlaying}
@@ -286,6 +283,7 @@ export const RunTestScreen = ({navigation, route}) => {
           ) : (
             <View style={styles.buttonGroup}>
               <Button
+                disabled={isComplete}
                 status="danger"
                 size="medium"
                 style={styles.resetButton}
@@ -296,6 +294,7 @@ export const RunTestScreen = ({navigation, route}) => {
                 Reset
               </Button>
               <Button
+                disabled={isComplete}
                 status="success"
                 size="medium"
                 style={styles.startButton}

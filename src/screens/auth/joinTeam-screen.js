@@ -16,7 +16,6 @@ export function JoinTeamScreen({navigation}) {
   const [teamCode, setTeamCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
-  const [valid, setValid] = useState(false);
   const auth = useAuth();
 
   useEffect(() => {
@@ -29,7 +28,7 @@ export function JoinTeamScreen({navigation}) {
 
   function joinTeam(teamId) {
     setLoading(true);
-    checkValidTeamId(teamId, setValid)
+    checkValidTeamId(teamId)
       .then((res) => {
         if (res) {
           auth

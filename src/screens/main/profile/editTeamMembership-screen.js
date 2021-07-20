@@ -10,29 +10,34 @@ import {
   Modal,
   Spinner,
 } from '@ui-kitten/components';
-import {updateUser} from '../../../util/db';
+import {checkValidTeamId} from '../../../util/db';
+import {KeypadIcon} from '../../../components/icons';
 
-export const EditBioScreen = ({route, navigation}) => {
-  const user = route.params.userData;
-  const [bio, setBio] = useState(user.bio);
+export const EditTeamMembershipScreen = ({route, navigation}) => {
+  const auth = route.params.auth;
+  const [teamCode, setTeamCode] = useState(auth.user.teamId);
   const [loading, setLoading] = useState('');
 
-  function onSubmit() {
-    if (bio !== '') {
-      setLoading(true);
-      updateUser(user.uid, {
-        bio: bio,
+  function onSubmit(teamId) {
+    setLoading(true);
+    checkValidTeamId(teamId)
+      .then(res => {
+        if (res) {
+          auth
+            .updateProfile({
+              teamId: teamId,
+            })
+            .then(() => setLoading(false))
+            .catch(e => Alert.alert(e));
+        } else {
+          Alert.alert('Invalid team id');
+        }
       })
-        .then(() => Keyboard.dismiss())
-        .then(() => navigation.navigate('Profile'))
-        .catch((error) => {
-          Alert.alert('Error updating bio');
-          console.log(error);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      Alert.alert('Make sure bio is not empty');
-    }
+      .finally(() =>
+        setTimeout(() => {
+          setLoading(false);
+        }, 1000),
+      );
   }
 
   const goBack = () => {
@@ -56,25 +61,23 @@ export const EditBioScreen = ({route, navigation}) => {
   return (
     <>
       <TopNavigation
-        title="Edit Bio"
+        title="Edit Team Membership"
         alignment="center"
         accessoryLeft={GoBackButton}
         accessoryRight={SaveButton}
       />
-      <Layout style={{flex: 1}} level="3">
+      <Layout style={{flex: 1}} level="2">
         <ScrollView contentContainerStyle={styles.layout}>
           <Modal visible={loading} backdropStyle={styles.backdrop}>
             <Spinner size="giant" status="basic" />
           </Modal>
-          <Layout style={styles.bioContainer} level="3">
+          <Layout style={styles.bioContainer} level="2">
             <Input
-              placeholder={bio}
-              label="Bio"
-              autoFocus={false}
-              multiline={true}
-              textStyle={{minHeight: 150}}
-              maxLength={200}
-              onChangeText={(nextValue) => setBio(nextValue)}
+              accessoryRight={KeypadIcon}
+              size="large"
+              placeholder={teamCode}
+              label="Enter a Different Team Code"
+              onChangeText={nextValue => setTeamCode(nextValue)}
             />
           </Layout>
         </ScrollView>
