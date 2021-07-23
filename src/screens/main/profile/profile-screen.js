@@ -94,7 +94,7 @@ export const ProfileScreen = ({route, navigation}) => {
                   status="danger"
                   onPress={() =>
                     navigation.navigate('Edit Team Membership', {
-                      auth: auth,
+                      user: auth.user,
                       team: items,
                     })
                   }>

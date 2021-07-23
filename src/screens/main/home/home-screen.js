@@ -37,46 +37,56 @@ export const HomeScreen = ({navigation}) => {
     navigation.openDrawer();
   };
 
-  const [events, setevents] = useState(undefined);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    let mounted = true;
     if (auth.user !== undefined) {
+      setEvents([]);
       setFirstName(auth.user.firstName);
       var currentTime = new Date();
-      let data = [];
       firestore()
         .collection('events')
         .where('resource.teamId', '==', auth.user.teamId)
-        .get()
-        .then(querySnapshot => {
-          querySnapshot.forEach(documentSnapshot => {
-            // must include end boundry condition here
-            if (
-              documentSnapshot.data().start.toDate() <= currentTime &&
-              documentSnapshot.data().end.toDate() >= currentTime
-            ) {
-              let doc = documentSnapshot.data();
-              if (doc.eventCompletedPlayers.includes(auth.user.uid)) {
-                setEventsComplete(prevNum => {
-                  const nextNum = prevNum + 1;
-                  return nextNum;
-                });
+        .onSnapshot(
+          querySnapshot => {
+            let data = [];
+            querySnapshot.forEach(documentSnapshot => {
+              // must include end boundry condition here
+              if (
+                documentSnapshot.data().start.toDate() <= currentTime &&
+                documentSnapshot.data().end.toDate() >= currentTime
+              ) {
+                let doc = documentSnapshot.data();
+                //console.log(doc);
+
+                if (doc.eventCompletedPlayers.includes(auth.user.uid)) {
+                  console.log('incrementing events completed');
+                  setEventsComplete(prevNum => {
+                    const nextNum = prevNum + 1;
+                    return nextNum;
+                  });
+                }
+
+                const newEvent = {
+                  event: documentSnapshot.data(),
+                  id: documentSnapshot.id,
+                };
+
+                //update events away properly here
+
+                data.push(newEvent);
               }
-              data.push({
-                event: documentSnapshot.data(),
-                id: documentSnapshot.id,
-              });
-            }
-          });
-          setevents(data);
-        })
-        .then(() => {
-          setTeamRuns(getRunsByTeam(auth.user.teamId));
-        })
-        .catch(e => console.log(e));
+            });
+            setEvents(data);
+          },
+          error => {
+            console.log(error);
+          },
+        );
+
+      setTeamRuns(getRunsByTeam(auth.user.teamId));
       setLoading(false);
-      return () => (mounted = false);
+      //return () => subscriber();
     }
   }, [auth.user]);
 

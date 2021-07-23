@@ -12,32 +12,29 @@ import {
 } from '@ui-kitten/components';
 import {checkValidTeamId} from '../../../util/db';
 import {KeypadIcon} from '../../../components/icons';
+import {useAuth} from '../../../util/auth';
 
 export const EditTeamMembershipScreen = ({route, navigation}) => {
-  const auth = route.params.auth;
-  const [teamCode, setTeamCode] = useState(auth.user.teamId);
+  const auth = useAuth();
+  const user = route.params.user;
+  const [teamCode, setTeamCode] = useState(user.teamId);
   const [loading, setLoading] = useState('');
 
   function onSubmit(teamId) {
     setLoading(true);
-    checkValidTeamId(teamId)
-      .then(res => {
-        if (res) {
-          auth
-            .updateProfile({
-              teamId: teamId,
-            })
-            .then(() => setLoading(false))
-            .catch(e => Alert.alert(e));
-        } else {
-          Alert.alert('Invalid team id');
-        }
-      })
-      .finally(() =>
-        setTimeout(() => {
-          setLoading(false);
-        }, 1000),
-      );
+    checkValidTeamId(teamId).then(res => {
+      if (res) {
+        auth
+          .updateProfile({
+            teamId: teamId,
+          })
+          .then(() => setLoading(false))
+          .catch(e => Alert.alert(e));
+      } else {
+        Alert.alert('Invalid team id');
+      }
+    });
+    setLoading(false);
   }
 
   const goBack = () => {
@@ -51,7 +48,11 @@ export const EditTeamMembershipScreen = ({route, navigation}) => {
   );
 
   const SaveButton = () => (
-    <Button size="small" onPress={onSubmit} appearance="ghost" status="primary">
+    <Button
+      size="small"
+      onPress={() => onSubmit(teamCode)}
+      appearance="ghost"
+      status="primary">
       Save
     </Button>
   );

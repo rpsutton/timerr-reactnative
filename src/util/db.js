@@ -86,11 +86,7 @@ export function checkValidTeamId(teamId) {
     .doc(teamId)
     .get()
     .then(doc => {
-      if (doc.exists) {
-        return true;
-      } else {
-        return false;
-      }
+      return doc.exists;
     })
     .catch(e => console.log(e));
 }
