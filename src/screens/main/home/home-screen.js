@@ -30,7 +30,7 @@ export const HomeScreen = ({navigation}) => {
   const [teamRuns, setTeamRuns] = useState(undefined);
   const [eventsComplete, setEventsComplete] = useState(0);
   const auth = useAuth();
-  const [date, setDate] = useState(new Date());
+  const [dateObj, setDateObj] = useState(new Date());
   const [firstName, setFirstName] = useState('...');
   const styles = useStyleSheet(themedStyle);
   const openDrawer = () => {
@@ -38,29 +38,40 @@ export const HomeScreen = ({navigation}) => {
   };
 
   const [events, setEvents] = useState([]);
+  const [allEvents, setAllEvents] = useState([]);
+  const [querySize, setQuerySize] = useState(undefined);
+  const [completedEvents, setCompletedEvents] = useState([]);
 
   useEffect(() => {
     if (auth.user !== undefined) {
       setEvents([]);
+      setAllEvents([]);
+      setCompletedEvents([]);
       setFirstName(auth.user.firstName);
-      var currentTime = new Date();
       firestore()
         .collection('events')
         .where('resource.teamId', '==', auth.user.teamId)
         .onSnapshot(
           querySnapshot => {
+            setQuerySize(querySnapshot.size);
             let data = [];
+            let all = [];
+            let completed = [];
             querySnapshot.forEach(documentSnapshot => {
               // must include end boundry condition here
+              let doc = documentSnapshot.data();
+              let allDate = doc.start.toDate();
+              all.push(allDate.toString());
+              if (doc.eventCompletedPlayers.includes(auth.user.uid)) {
+                let compDate = doc.start.toDate();
+                completed.push(compDate.toString());
+              }
               if (
-                documentSnapshot.data().start.toDate() <= currentTime &&
-                documentSnapshot.data().end.toDate() >= currentTime
+                doc.start.toDate() <= dateObj &&
+                doc.end.toDate() >= dateObj
               ) {
-                let doc = documentSnapshot.data();
                 //console.log(doc);
-
                 if (doc.eventCompletedPlayers.includes(auth.user.uid)) {
-                  console.log('incrementing events completed');
                   setEventsComplete(prevNum => {
                     const nextNum = prevNum + 1;
                     return nextNum;
@@ -78,6 +89,8 @@ export const HomeScreen = ({navigation}) => {
               }
             });
             setEvents(data);
+            setAllEvents(all);
+            setCompletedEvents(completed);
           },
           error => {
             console.log(error);
@@ -85,10 +98,22 @@ export const HomeScreen = ({navigation}) => {
         );
 
       setTeamRuns(getRunsByTeam(auth.user.teamId));
-      setLoading(false);
+
       //return () => subscriber();
     }
   }, [auth.user]);
+
+  useEffect(() => {
+    if (querySize !== undefined) {
+      if (allEvents.length === querySize) {
+        setLoading(false);
+      } else {
+        if (!loading) {
+          setLoading(true);
+        }
+      }
+    }
+  }, [querySize, allEvents.length, loading]);
 
   const DrawerAction = () => (
     <TopNavigationAction icon={LargeDrawerIcon} onPress={openDrawer} />
@@ -178,41 +203,61 @@ export const HomeScreen = ({navigation}) => {
     }
   };
 
-  let month = date.getMonth();
-  let day = date.getDate();
   const DayCell = ({date}, style) => {
-    let currentDate = date.getDate();
-    let currentMonth = date.getMonth();
-    if (
-      (currentDate % 2 === 0 || currentDate % 3 === 0) &&
-      currentDate < 15 &&
-      currentMonth === month
-    ) {
-      return (
-        <View style={[styles.dayContainer, style.container]}>
-          <Text category="s1" style={style.text}>
-            {date.getDate()}
-          </Text>
-          <Icon style={styles.icon} fill="#00E096" name="checkmark" />
-        </View>
-      );
-    } else if (currentDate < day && currentMonth === month) {
-      return (
-        <View style={[styles.dayContainer, style.container]}>
-          <Text category="s1" style={style.text}>
-            {date.getDate()}
-          </Text>
-          <Icon style={styles.icon} fill="#FF3D71" name="close" />
-        </View>
-      );
+    if (date < new Date()) {
+      if (completedEvents.includes(date.toString())) {
+        return (
+          <View style={[styles.dayContainer, style.container]}>
+            <Text category="s1" style={style.text}>
+              {date.getDate()}
+            </Text>
+            <Icon style={styles.icon} fill="#87C946" name="checkmark" />
+          </View>
+        );
+      } else if (
+        allEvents.includes(date.toString()) &&
+        !completedEvents.includes(date.toString())
+      ) {
+        return (
+          <View style={[styles.dayContainer, style.container]}>
+            <Text category="s1" style={style.text}>
+              {date.getDate()}
+            </Text>
+            <Icon style={styles.icon} fill="#f1100b" name="close" />
+          </View>
+        );
+      } else {
+        return (
+          <View style={[styles.dayContainer, style.container]}>
+            <Text category="s1" style={style.text}>
+              {date.getDate()}
+            </Text>
+          </View>
+        );
+      }
     } else {
-      return (
-        <View style={[styles.dayContainer, style.container]}>
-          <Text category="s1" style={style.text}>
-            {date.getDate()}
-          </Text>
-        </View>
-      );
+      if (allEvents.includes(date.toString())) {
+        return (
+          <View style={[styles.dayContainer, style.container]}>
+            <Text category="s1" style={style.text}>
+              {date.getDate()}
+            </Text>
+            <Icon
+              style={styles.icon}
+              fill="#C5CEE0"
+              name="radio-button-off-outline"
+            />
+          </View>
+        );
+      } else {
+        return (
+          <View style={[styles.dayContainer, style.container]}>
+            <Text category="s1" style={style.text}>
+              {date.getDate()}
+            </Text>
+          </View>
+        );
+      }
     }
   };
   const ListFooter = () => {
@@ -226,17 +271,20 @@ export const HomeScreen = ({navigation}) => {
               teamId: auth.user.teamId,
               uid: auth.user.id,
               todaysEvents: events,
-              eventsComplete: eventsComplete,
+              // completed events arr, not int
+              eventsComplete: completedEvents,
+              eventsCompleteNumber: eventsComplete,
               teamRuns: teamRuns,
             })
           }>
           Go To My Runs
         </Button>
         <Calendar
+          //boundingMonth={true}
           renderDay={DayCell}
           style={styles.calendar}
-          date={date}
-          onSelect={nextDate => setDate(nextDate)}
+          date={dateObj}
+          onSelect={nextDate => setDateObj(nextDate)}
           renderFooter={CalendarFooter}
         />
       </View>
@@ -244,13 +292,19 @@ export const HomeScreen = ({navigation}) => {
   };
 
   const CalendarFooter = () => {
+    let date = new Date();
+    const previousEvents = allEvents.filter(ev => ev < date.toString());
+    let runsPercentage = Math.round(
+      (completedEvents.length / previousEvents.length) * 100,
+    );
+    //console.log(runsPercentage);
     return (
       <LinearGradient
         start={{x: 0, y: 0}}
         end={{x: 1, y: 0}}
         colors={['#3366FF', '#0095FF']}>
         <Text category="c1" style={styles.calendarFooterText} status="control">
-          You completed 86% of assigned runs this month 💪
+          You completed {runsPercentage}% of assigned runs 💪
         </Text>
       </LinearGradient>
     );
