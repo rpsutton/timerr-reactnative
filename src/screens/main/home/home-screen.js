@@ -28,7 +28,7 @@ import {getRunsByTeam} from '../../../util/db';
 export const HomeScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true);
   const [teamRuns, setTeamRuns] = useState(undefined);
-  const [eventsComplete, setEventsComplete] = useState(0);
+  const [eventsCompleteNumber, setEventsCompleteNumber] = useState(0);
   const auth = useAuth();
   const [dateObj, setDateObj] = useState(new Date());
   const [firstName, setFirstName] = useState('...');
@@ -44,6 +44,7 @@ export const HomeScreen = ({navigation}) => {
 
   useEffect(() => {
     if (auth.user !== undefined) {
+      setEventsCompleteNumber(0);
       setEvents([]);
       setAllEvents([]);
       setCompletedEvents([]);
@@ -70,14 +71,6 @@ export const HomeScreen = ({navigation}) => {
                 doc.start.toDate() <= dateObj &&
                 doc.end.toDate() >= dateObj
               ) {
-                //console.log(doc);
-                if (doc.eventCompletedPlayers.includes(auth.user.uid)) {
-                  setEventsComplete(prevNum => {
-                    const nextNum = prevNum + 1;
-                    return nextNum;
-                  });
-                }
-
                 const newEvent = {
                   event: documentSnapshot.data(),
                   id: documentSnapshot.id,
@@ -98,8 +91,6 @@ export const HomeScreen = ({navigation}) => {
         );
 
       setTeamRuns(getRunsByTeam(auth.user.teamId));
-
-      //return () => subscriber();
     }
   }, [auth.user]);
 
@@ -115,6 +106,18 @@ export const HomeScreen = ({navigation}) => {
     }
   }, [querySize, allEvents.length, loading]);
 
+  useEffect(() => {
+    let count = 0;
+    if (allEvents.length === querySize) {
+      for (const ev of events) {
+        if (ev.event.eventCompletedPlayers.includes(auth.user.uid)) {
+          count++;
+        }
+      }
+      setEventsCompleteNumber(count);
+    }
+  }, [allEvents.length, querySize, events]);
+
   const DrawerAction = () => (
     <TopNavigationAction icon={LargeDrawerIcon} onPress={openDrawer} />
   );
@@ -129,26 +132,29 @@ export const HomeScreen = ({navigation}) => {
   );
 
   const Footer = props => {
-    if (eventsComplete <= 0) {
+    if (eventsCompleteNumber <= 0) {
       return (
         <View {...props}>
           <Text category="s1" status="danger">
-            {eventsComplete}/{events.length} Assigned events Complete
+            {eventsCompleteNumber}/{events.length} Assigned events complete
           </Text>
         </View>
       );
-    } else if (eventsComplete > 0 && eventsComplete < events.length) {
+    } else if (
+      eventsCompleteNumber > 0 &&
+      eventsCompleteNumber < events.length
+    ) {
       return (
         <View {...props}>
           <Text category="s1" status="warning">
-            {eventsComplete}/{events.length} Assigned events Complete
+            {eventsCompleteNumber}/{events.length} Assigned events complete
           </Text>
         </View>
       );
     } else {
       <View {...props}>
         <Text category="s1" status="success">
-          {eventsComplete}/{events.length} Assigned Runs Complete
+          {eventsCompleteNumber}/{events.length} Assigned runs complete
         </Text>
       </View>;
     }
@@ -273,7 +279,7 @@ export const HomeScreen = ({navigation}) => {
               todaysEvents: events,
               // completed events arr, not int
               eventsComplete: completedEvents,
-              eventsCompleteNumber: eventsComplete,
+              eventsCompleteNumber: eventsCompleteNumber,
               teamRuns: teamRuns,
             })
           }>

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Layout,
   Text,
@@ -22,9 +22,10 @@ import {
 } from '../../../components/icons';
 
 export const SelectRunScreen = ({navigation, route}) => {
-  const events = route.params.todaysEvents;
+  const allEvents = route.params.todaysEvents;
+  const [events, setEvents] = useState([]);
   const teamRuns = route.params.teamRuns;
-  const eventsComplete = route.params.eventsComplete;
+  const eventsCompleteNumber = route.params.eventsCompleteNumber;
   const uid = route.params.uid;
   const styles = useStyleSheet(themedStyle);
   const [checked, setChecked] = useState(true);
@@ -34,6 +35,17 @@ export const SelectRunScreen = ({navigation, route}) => {
   const [announceIntervalIndex, setAnnounceIntervalIndex] = useState(
     new IndexPath(4),
   );
+
+  useEffect(() => {
+    let arr = [];
+    for (const ev of allEvents) {
+      console.log(ev);
+      if (!ev.event.eventCompletedPlayers.includes(uid)) {
+        arr.push(ev);
+      }
+    }
+    setEvents(arr);
+  }, [allEvents]);
 
   const goBack = () => {
     navigation.goBack();
@@ -92,26 +104,29 @@ export const SelectRunScreen = ({navigation, route}) => {
   );
 
   const Footer = props => {
-    if (eventsComplete <= 0) {
+    if (eventsCompleteNumber <= 0) {
       return (
         <View {...props}>
           <Text category="s1" status="danger">
-            {eventsComplete}/{events.length} Assigned Runs Complete
+            {eventsCompleteNumber}/{allEvents.length} Assigned Runs Complete
           </Text>
         </View>
       );
-    } else if (eventsComplete > 0 && eventsComplete < events.length) {
+    } else if (
+      eventsCompleteNumber > 0 &&
+      eventsCompleteNumber < allEvents.length
+    ) {
       return (
         <View {...props}>
           <Text category="s1" status="warning">
-            {eventsComplete}/{events.length} Assigned Runs Complete
+            {eventsCompleteNumber}/{allEvents.length} Assigned Runs Complete
           </Text>
         </View>
       );
     } else {
       <View {...props}>
         <Text category="s1" status="success">
-          {eventsComplete}/{events.length} Assigned Runs Complete
+          {eventsCompleteNumber}/{allEvents.length} Assigned Runs Complete
         </Text>
       </View>;
     }
@@ -120,7 +135,10 @@ export const SelectRunScreen = ({navigation, route}) => {
   const EventsSection = () => {
     if (events.length === 0) {
       return (
-        <Card style={styles.viewWorkoutContainer} status="primary" disabled={true}>
+        <Card
+          style={styles.viewWorkoutContainer}
+          status="primary"
+          disabled={true}>
           <Text category="h6" status="primary">
             No Runs Assigned Today
           </Text>
@@ -129,14 +147,14 @@ export const SelectRunScreen = ({navigation, route}) => {
     } else {
       return (
         <Card
-        disabled={true}
+          disabled={true}
           style={styles.viewWorkoutContainer}
           status="primary"
           footer={Footer}>
           <Text category="h4" style={{marginBottom: '2%'}}>
             Todays Assigned Runs
           </Text>
-          {events.map((item, index) => {
+          {allEvents.map((item, index) => {
             if (item.event.eventCompletedPlayers.includes(uid)) {
             }
             return (
