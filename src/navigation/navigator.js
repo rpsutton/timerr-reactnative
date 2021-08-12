@@ -8,8 +8,7 @@ import {SelectRunScreen} from '../screens/main/cardio/select-run-screen';
 import {ConfirmRunScreen} from '../screens/main/cardio/confirm-run-screen';
 import {ConfirmEventScreen} from '../screens/main/cardio/confirm-event-screen';
 import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
-import {DetailsScreen} from '../screens/main/settings-screen';
-import {SignOutScreen} from '../screens/main/signOut-screen';
+import {SettingsScreen} from '../screens/main/settings/settings-screen';
 import {ProfileScreen} from '../screens/main/profile/profile-screen';
 import {EditTeamMembershipScreen} from '../screens/main/profile/editTeamMembership-screen';
 import {EditNameScreen} from '../screens/main/profile/editName-screen';
@@ -86,7 +85,7 @@ const DrawerNavigator = () => (
       options={{swipeEnabled: false}}
     />
     <DrawerObj.Screen name="Profile" component={ProfileStack} />
-    <DrawerObj.Screen name="Settings" component={DetailsScreen} />
+    <DrawerObj.Screen name="Settings" component={SettingsScreen} />
   </DrawerObj.Navigator>
 );
 

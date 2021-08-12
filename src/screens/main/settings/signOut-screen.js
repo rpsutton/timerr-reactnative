@@ -8,7 +8,7 @@ import {
   TopNavigation,
   TopNavigationAction,
 } from '@ui-kitten/components';
-import {LargeDrawerIcon} from '../../components/icons';
+import {LargeDrawerIcon} from '../../../components/icons';
 import auth from '@react-native-firebase/auth';
 
 export const SignOutScreen = ({navigation}) => {
