@@ -21,3 +21,22 @@ export function timeDifference(current, previous) {
     return Math.round(elapsed / msPerYear) + ' years ago';
   }
 }
+
+export function computePercentage(eventsItems, id) {
+  console.log(eventsItems);
+  let completeEvents = 0;
+  let incompleteEvents = 0;
+  let date = new Date();
+  for (const ev of eventsItems) {
+    if (ev.start.toDate() < date) {
+      if (ev.eventCompletedPlayers.includes(id)) {
+        completeEvents++;
+      } else {
+        incompleteEvents++;
+      }
+    }
+  }
+  let num = ((completeEvents / (completeEvents + incompleteEvents)) * 100);
+  let fixedNum = (num.toFixed(0));
+  return fixedNum;
+}

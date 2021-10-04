@@ -20,7 +20,7 @@ import {
   FailureIcon,
   SuccessIcon,
 } from '../../../components/icons';
-import LinearGradient from 'react-native-linear-gradient';
+import { CalendarFooter } from '../../../components/home/CalendarFooter';
 import {useAuth} from '../../../util/auth';
 import firestore from '@react-native-firebase/firestore';
 import {getRunsByTeam} from '../../../util/db';
@@ -43,12 +43,12 @@ export const HomeScreen = ({navigation}) => {
   const [completedEvents, setCompletedEvents] = useState([]);
 
   useEffect(() => {
-    if (auth.user !== undefined) {
+    if (auth.user !== null && auth.user !== undefined) {
       setEventsCompleteNumber(0);
       setEvents([]);
       setAllEvents([]);
       setCompletedEvents([]);
-      setFirstName(auth.user.firstName);
+      //setFirstName(auth.user.firstName);
       firestore()
         .collection('events')
         .where('resource.teamId', '==', auth.user.teamId)
@@ -124,7 +124,7 @@ export const HomeScreen = ({navigation}) => {
 
   const Header = props => (
     <View {...props}>
-      <Text category="h4">Hello, {firstName}.</Text>
+      <Text category="h4">Hello.</Text>
       <Text category="h6" appearance="hint">
         Welcome back, go and get it! 🏃
       </Text>
@@ -291,29 +291,14 @@ export const HomeScreen = ({navigation}) => {
           style={styles.calendar}
           date={dateObj}
           onSelect={nextDate => setDateObj(nextDate)}
-          renderFooter={CalendarFooter}
+          renderFooter={CalFooter}
         />
       </View>
     );
   };
 
-  const CalendarFooter = () => {
-    let date = new Date();
-    const previousEvents = allEvents.filter(ev => ev < date.toString());
-    let runsPercentage = Math.round(
-      (completedEvents.length / previousEvents.length) * 100,
-    );
-    //console.log(runsPercentage);
-    return (
-      <LinearGradient
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 0}}
-        colors={['#3366FF', '#0095FF']}>
-        <Text category="c1" style={styles.calendarFooterText} status="control">
-          You completed {runsPercentage}% of assigned runs 💪
-        </Text>
-      </LinearGradient>
-    );
+  const CalFooter = () => {
+    return <CalendarFooter teamId={auth.user.teamId} uid={auth.user.id} />;
   };
 
   if (loading || events === undefined) {
@@ -388,8 +373,5 @@ const themedStyle = StyleService.create({
     justifyContent: 'center',
     alignItems: 'center',
     aspectRatio: 1,
-  },
-  calendarFooterText: {
-    padding: '2%',
   },
 });

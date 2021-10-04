@@ -49,6 +49,7 @@ function useProvideAuth() {
         firstName: firstName,
         lastName: lastName,
         teamId: null,
+        userType: 'player',
       });
 
       // Send email verification if enabled
@@ -244,8 +245,32 @@ export const handleVerifyEmail = (code) => {
 
 const allProviders = [
   {
-    id: 'password',
-    name: 'password',
+    id: "password",
+    name: "password",
+  },
+  {
+    id: "google.com",
+    name: "google",
+    providerMethod: auth().GoogleAuthProvider,
+  },
+  {
+    id: "facebook.com",
+    name: "facebook",
+    providerMethod: auth().FacebookAuthProvider,
+    parameters: {
+      // Tell fb to show popup size UI instead of full website
+      display: "popup",
+    },
+  },
+  {
+    id: "twitter.com",
+    name: "twitter",
+    providerMethod: auth().TwitterAuthProvider,
+  },
+  {
+    id: "github.com",
+    name: "github",
+    providerMethod: auth().GithubAuthProvider,
   },
 ];
 
