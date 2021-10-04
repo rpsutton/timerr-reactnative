@@ -1,28 +1,41 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useState } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { InitializingScreen } from './initializing-screen';
-import { HomeScreen } from '../screens/main/home/home-screen';
-import { SelectRunScreen } from '../screens/main/cardio/select-run-screen';
-import { ConfirmRunScreen } from '../screens/main/cardio/confirm-run-screen';
-import { ConfirmEventScreen } from '../screens/main/cardio/confirm-event-screen';
-import { RunTestScreen } from '../screens/main/cardio/runTest-screen';
-import { SettingsScreen } from '../screens/main/settings/settings-screen';
-import { ProfileScreen } from '../screens/main/profile/profile-screen';
-import { EditTeamMembershipScreen } from '../screens/main/profile/editTeamMembership-screen';
-import { EditNameScreen } from '../screens/main/profile/editName-screen';
-import { SignInScreen } from '../screens/auth/signIn-screen';
-import { SignUpScreen } from '../screens/auth/signUp-screen';
-import { JoinTeamScreen } from '../screens/auth/joinTeam-screen';
-import { ForgotPasswordScreen } from '../screens/auth/forgotPassword-screen';
+import React, {useEffect, useState} from 'react';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {InitializingScreen} from './initializing-screen';
+import {HomeScreen} from '../screens/main/home/home-screen';
+import {SelectRunScreen} from '../screens/main/cardio/select-run-screen';
+import {ConfirmRunScreen} from '../screens/main/cardio/confirm-run-screen';
+import {ConfirmEventScreen} from '../screens/main/cardio/confirm-event-screen';
+import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
+import {SettingsScreen} from '../screens/main/settings/settings-screen';
+import {ProfileScreen} from '../screens/main/profile/profile-screen';
+import {EditTeamMembershipScreen} from '../screens/main/profile/editTeamMembership-screen';
+import {EditNameScreen} from '../screens/main/profile/editName-screen';
+import {SignInScreen} from '../screens/auth/signIn-screen';
+import {SignUpScreen} from '../screens/auth/signUp-screen';
+import {JoinTeamScreen} from '../screens/auth/joinTeam-screen';
+import {ForgotPasswordScreen} from '../screens/auth/forgotPassword-screen';
 import auth from '@react-native-firebase/auth';
-import { Drawer, DrawerItem, IndexPath } from '@ui-kitten/components';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { HomeIcon, SettingsIcon, PersonIcon } from '../components/icons';
-import { StatusBar } from 'react-native';
+import {
+  Drawer,
+  DrawerItem,
+  IndexPath,
+  BottomNavigation,
+  BottomNavigationTab,
+} from '@ui-kitten/components';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {
+  HomeIcon,
+  SettingsIcon,
+  PersonIcon,
+  PlusIcon,
+} from '../components/icons';
+import {StatusBar} from 'react-native';
 
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 const DrawerObj = createDrawerNavigator();
 
 const HomeScreenStack = () => {
@@ -38,10 +51,23 @@ const HomeScreenStack = () => {
       <Stack.Screen
         name="Run Test Screen"
         component={RunTestScreen}
-        options={{ gestureEnabled: false }}
+        options={{gestureEnabled: false}}
       />
     </Stack.Navigator>
   );
+};
+
+const RunStack = () => {
+  <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
+    <Stack.Screen name="Select Run Screen" component={SelectRunScreen} />
+    <Stack.Screen name="Confirm Run Screen" component={ConfirmRunScreen} />
+    <Stack.Screen name="Confirm Event Screen" component={ConfirmEventScreen} />
+    <Stack.Screen
+      name="Run Test Screen"
+      component={RunTestScreen}
+      options={{gestureEnabled: false}}
+    />
+  </Stack.Navigator>;
 };
 
 const ProfileStack = () => {
@@ -66,7 +92,23 @@ const AuthScreenStack = () => (
   </Stack.Navigator>
 );
 
-const DrawerContent = ({ navigation, state }) => (
+const BottomTabBar = ({navigation, state}) => (
+  <BottomNavigation
+    selectedIndex={state.index}
+    onSelect={index => navigation.navigate(state.routeNames[index])}>
+    <BottomNavigationTab icon={HomeIcon} />
+    <BottomNavigationTab icon={PlusIcon} />
+  </BottomNavigation>
+);
+
+const TabNavigator = () => (
+  <Tab.Navigator tabBar={props => <BottomTabBar {...props} />}>
+    <Tab.Screen name="Home" component={HomeScreenStack} />
+    <Tab.Screen name="Runs" component={RunStack} />
+  </Tab.Navigator>
+);
+
+const DrawerContent = ({navigation, state}) => (
   <Drawer
     selectedIndex={new IndexPath(state.index)}
     onSelect={index => navigation.navigate(state.routeNames[index.row])}>
@@ -81,7 +123,7 @@ const DrawerNavigator = () => (
     <DrawerObj.Screen
       name="Home"
       component={HomeScreenStack}
-      options={{ swipeEnabled: false }}
+      options={{swipeEnabled: false}}
     />
     <DrawerObj.Screen name="Profile" component={ProfileStack} />
     <DrawerObj.Screen name="Settings" component={SettingsScreen} />
@@ -118,14 +160,14 @@ function MainTabNavigator() {
     );
   } else if (initializing) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <StatusBar barStyle="dark-content" />
         <InitializingScreen />
       </SafeAreaView>
     );
   } else {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+      <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
         <StatusBar barStyle="dark-content" />
         <AuthScreenStack />
       </SafeAreaView>
@@ -133,4 +175,4 @@ function MainTabNavigator() {
   }
 }
 
-export { MainTabNavigator };
+export {MainTabNavigator};
