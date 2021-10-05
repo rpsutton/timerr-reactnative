@@ -58,16 +58,21 @@ const HomeScreenStack = () => {
 };
 
 const RunStack = () => {
-  <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
-    <Stack.Screen name="Select Run Screen" component={SelectRunScreen} />
-    <Stack.Screen name="Confirm Run Screen" component={ConfirmRunScreen} />
-    <Stack.Screen name="Confirm Event Screen" component={ConfirmEventScreen} />
-    <Stack.Screen
-      name="Run Test Screen"
-      component={RunTestScreen}
-      options={{gestureEnabled: false}}
-    />
-  </Stack.Navigator>;
+  return (
+    <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
+      <Stack.Screen name="Select Run Screen" component={SelectRunScreen} />
+      <Stack.Screen name="Confirm Run Screen" component={ConfirmRunScreen} />
+      <Stack.Screen
+        name="Confirm Event Screen"
+        component={ConfirmEventScreen}
+      />
+      <Stack.Screen
+        name="Run Test Screen"
+        component={RunTestScreen}
+        options={{gestureEnabled: false}}
+      />
+    </Stack.Navigator>
+  );
 };
 
 const ProfileStack = () => {
@@ -122,7 +127,7 @@ const DrawerNavigator = () => (
   <DrawerObj.Navigator drawerContent={props => <DrawerContent {...props} />}>
     <DrawerObj.Screen
       name="Home"
-      component={HomeScreenStack}
+      component={TabNavigator}
       options={{swipeEnabled: false}}
     />
     <DrawerObj.Screen name="Profile" component={ProfileStack} />

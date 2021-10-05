@@ -1,7 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Divider,
   Layout,
   Text,
   TopNavigation,
@@ -9,305 +8,75 @@ import {
   StyleService,
   useStyleSheet,
   Button,
-  Card,
-  Icon,
-  Calendar,
   Spinner,
 } from '@ui-kitten/components';
-import {View, ScrollView} from 'react-native';
-import {
-  LargeDrawerIcon,
-  FailureIcon,
-  SuccessIcon,
-} from '../../../components/icons';
-import { CalendarFooter } from '../../../components/home/CalendarFooter';
-import {useAuth} from '../../../util/auth';
+import { View, ScrollView, Dimensions } from 'react-native';
+import { LargeDrawerIcon } from '../../../components/icons';
+import { useAuth } from '../../../util/auth';
 import firestore from '@react-native-firebase/firestore';
-import {getRunsByTeam} from '../../../util/db';
+import { LineChart } from 'react-native-chart-kit';
 
-export const HomeScreen = ({navigation}) => {
+const testData = {
+  labels: ['9/25', '9/27', '10/01', '10/03', '10/04', '10/05'],
+  datasets: [
+    {
+      data: [6.7, 6.9, 6.8, 7.1, 7.0, 7.1],
+    },
+  ],
+};
+
+export const HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
-  const [teamRuns, setTeamRuns] = useState(undefined);
-  const [eventsCompleteNumber, setEventsCompleteNumber] = useState(0);
   const auth = useAuth();
-  const [dateObj, setDateObj] = useState(new Date());
-  const [firstName, setFirstName] = useState('...');
   const styles = useStyleSheet(themedStyle);
   const openDrawer = () => {
     navigation.openDrawer();
   };
-
-  const [events, setEvents] = useState([]);
-  const [allEvents, setAllEvents] = useState([]);
-  const [querySize, setQuerySize] = useState(undefined);
-  const [completedEvents, setCompletedEvents] = useState([]);
-
   useEffect(() => {
-    if (auth.user !== null && auth.user !== undefined) {
-      setEventsCompleteNumber(0);
-      setEvents([]);
-      setAllEvents([]);
-      setCompletedEvents([]);
-      //setFirstName(auth.user.firstName);
-      firestore()
-        .collection('events')
-        .where('resource.teamId', '==', auth.user.teamId)
-        .onSnapshot(
-          querySnapshot => {
-            setQuerySize(querySnapshot.size);
-            let data = [];
-            let all = [];
-            let completed = [];
-            querySnapshot.forEach(documentSnapshot => {
-              // must include end boundry condition here
-              let doc = documentSnapshot.data();
-              let allDate = doc.start.toDate();
-              all.push(allDate.toString());
-              if (doc.eventCompletedPlayers.includes(auth.user.uid)) {
-                let compDate = doc.start.toDate();
-                completed.push(compDate.toString());
-              }
-              if (
-                doc.start.toDate() <= dateObj &&
-                doc.end.toDate() >= dateObj
-              ) {
-                const newEvent = {
-                  event: documentSnapshot.data(),
-                  id: documentSnapshot.id,
-                };
-
-                //update events away properly here
-
-                data.push(newEvent);
-              }
-            });
-            setEvents(data);
-            setAllEvents(all);
-            setCompletedEvents(completed);
-          },
-          error => {
-            console.log(error);
-          },
-        );
-
-      setTeamRuns(getRunsByTeam(auth.user.teamId));
+    if (auth.user !== undefined && auth.user !== null) {
+      setLoading(false);
     }
   }, [auth.user]);
-
-  useEffect(() => {
-    if (querySize !== undefined) {
-      if (allEvents.length === querySize) {
-        setLoading(false);
-      } else {
-        if (!loading) {
-          setLoading(true);
-        }
-      }
-    }
-  }, [querySize, allEvents.length, loading]);
-
-  useEffect(() => {
-    let count = 0;
-    if (allEvents.length === querySize) {
-      for (const ev of events) {
-        if (ev.event.eventCompletedPlayers.includes(auth.user.uid)) {
-          count++;
-        }
-      }
-      setEventsCompleteNumber(count);
-    }
-  }, [allEvents.length, querySize, events]);
 
   const DrawerAction = () => (
     <TopNavigationAction icon={LargeDrawerIcon} onPress={openDrawer} />
   );
 
-  const Header = props => (
-    <View {...props}>
-      <Text category="h4">Hello.</Text>
-      <Text category="h6" appearance="hint">
+  const Greeting = props => (
+    <View style={styles.paddedContainer}>
+      <Text category="s1" style={{ fontSize: 20 }}>
+        Hello, {auth.user.firstName}.
+      </Text>
+      <Text category="s1" appearance="hint" style={{ fontSize: 20 }}>
         Welcome back, go and get it! 🏃
       </Text>
     </View>
   );
 
-  const Footer = props => {
-    if (eventsCompleteNumber <= 0) {
-      return (
-        <View {...props}>
-          <Text category="s1" status="danger">
-            {eventsCompleteNumber}/{events.length} Assigned events complete
-          </Text>
-        </View>
-      );
-    } else if (
-      eventsCompleteNumber > 0 &&
-      eventsCompleteNumber < events.length
-    ) {
-      return (
-        <View {...props}>
-          <Text category="s1" status="warning">
-            {eventsCompleteNumber}/{events.length} Assigned events complete
-          </Text>
-        </View>
-      );
-    } else {
-      <View {...props}>
-        <Text category="s1" status="success">
-          {eventsCompleteNumber}/{events.length} Assigned runs complete
-        </Text>
-      </View>;
-    }
-  };
-
-  const GreetingCard = () => {
-    if (events.length === 0) {
-      return (
-        <Card
-          disabled={true}
-          style={styles.viewWorkoutContainer}
-          status="primary"
-          header={Header}>
-          <Text category="h6" status="primary">
-            No Runs Assigned Today
-          </Text>
-        </Card>
-      );
-    } else {
-      return (
-        <Card
-          disabled={true}
-          style={styles.viewWorkoutContainer}
-          status="primary"
-          header={Header}
-          footer={Footer}>
-          <Text category="h4" style={{marginBottom: '2%'}}>
-            Todays Assigned Runs
-          </Text>
-          {events.map((item, index) => {
-            return (
-              <View
-                key={index}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  marginBottom: '1%',
-                }}>
-                <Text category="s1">- {item.event.title}</Text>
-                {item.event.eventCompletedPlayers.includes(auth.user.uid) ? (
-                  <SuccessIcon />
-                ) : (
-                  <FailureIcon />
-                )}
-                <Divider />
-              </View>
-            );
-          })}
-        </Card>
-      );
-    }
-  };
-
-  const DayCell = ({date}, style) => {
-    if (date < new Date()) {
-      if (completedEvents.includes(date.toString())) {
-        return (
-          <View style={[styles.dayContainer, style.container]}>
-            <Text category="s1" style={style.text}>
-              {date.getDate()}
-            </Text>
-            <Icon style={styles.icon} fill="#87C946" name="checkmark" />
-          </View>
-        );
-      } else if (
-        allEvents.includes(date.toString()) &&
-        !completedEvents.includes(date.toString())
-      ) {
-        return (
-          <View style={[styles.dayContainer, style.container]}>
-            <Text category="s1" style={style.text}>
-              {date.getDate()}
-            </Text>
-            <Icon style={styles.icon} fill="#f1100b" name="close" />
-          </View>
-        );
-      } else {
-        return (
-          <View style={[styles.dayContainer, style.container]}>
-            <Text category="s1" style={style.text}>
-              {date.getDate()}
-            </Text>
-          </View>
-        );
-      }
-    } else {
-      if (allEvents.includes(date.toString())) {
-        return (
-          <View style={[styles.dayContainer, style.container]}>
-            <Text category="s1" style={style.text}>
-              {date.getDate()}
-            </Text>
-            <Icon
-              style={styles.icon}
-              fill="#C5CEE0"
-              name="radio-button-off-outline"
-            />
-          </View>
-        );
-      } else {
-        return (
-          <View style={[styles.dayContainer, style.container]}>
-            <Text category="s1" style={style.text}>
-              {date.getDate()}
-            </Text>
-          </View>
-        );
-      }
-    }
-  };
-  const ListFooter = () => {
+  const CTACard = () => {
     return (
-      <View style={{width: '100%'}}>
-        <Button
-          style={styles.footerButton}
-          size="giant"
-          onPress={() =>
-            navigation.navigate('Select Run Screen', {
-              teamId: auth.user.teamId,
-              uid: auth.user.id,
-              todaysEvents: events,
-              // completed events arr, not int
-              eventsComplete: completedEvents,
-              eventsCompleteNumber: eventsCompleteNumber,
-              teamRuns: teamRuns,
-            })
-          }>
-          Go To My Runs
+      <View style={styles.ctaContainer}>
+        <Text
+          status="basic"
+          category="h2"
+          style={{ fontSize: 40, fontWeight: '900' }}>
+          Let's Practice Your Runs?
+        </Text>
+        <Button style={{ width: '50%', marginTop: '4%' }} size="giant">
+          Go Practice
         </Button>
-        <Calendar
-          //boundingMonth={true}
-          renderDay={DayCell}
-          style={styles.calendar}
-          date={dateObj}
-          onSelect={nextDate => setDateObj(nextDate)}
-          renderFooter={CalFooter}
-        />
       </View>
     );
   };
 
-  const CalFooter = () => {
-    return <CalendarFooter teamId={auth.user.teamId} uid={auth.user.id} />;
-  };
-
-  if (loading || events === undefined) {
+  if (loading) {
     return (
       <Layout style={styles.loadingContainer} level="2">
         <Spinner size="giant" status="primary" />
       </Layout>
     );
   } else {
+    const width = Dimensions.get('window').width;
     return (
       <>
         <TopNavigation
@@ -315,10 +84,26 @@ export const HomeScreen = ({navigation}) => {
           alignment="center"
           accessoryLeft={DrawerAction}
         />
-        <Layout style={styles.container} level="3">
+        <Layout style={styles.container} level="1">
           <ScrollView contentContainerStyle={styles.contentContainerStyle}>
-            <GreetingCard />
-            <ListFooter />
+            <Greeting />
+            <CTACard />
+            <LineChart
+              data={testData}
+              width={width * 0.95}
+              height={300}
+              chartConfig={{
+                backgroundGradientFrom: "#F7F9FC",
+                backgroundGradientFromOpacity: 1,
+                backgroundGradientTo: "#F7F9FC",
+                backgroundGradientToOpacity: 1,
+                color: (opacity = 1) => `rgba(51, 102, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                strokeWidth: 3, // optional, default 3
+              }}
+              bezier
+              style={{ borderRadius: 10, marginTop: '6%' }}
+            />
           </ScrollView>
         </Layout>
       </>
@@ -332,46 +117,25 @@ const themedStyle = StyleService.create({
     width: '100%',
   },
   contentContainerStyle: {
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
+    justifyContent: 'center',
+    alignItems: 'center',
     alignSelf: 'center',
     width: '95%',
+    padding: '2%',
+  },
+  paddedContainer: {
+    width: '100%',
+  },
+  ctaContainer: {
+    width: '100%',
+    minHeight: '20%',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    marginTop: '4%',
   },
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  italic: {
-    fontStyle: 'italic',
-  },
-  viewWorkoutContainer: {
-    marginTop: '2%',
-    width: '100%',
-  },
-  teamTextContainer: {
-    marginTop: '2%',
-  },
-  icon: {
-    width: 15,
-    height: 15,
-  },
-  footerButton: {
-    marginTop: '2%',
-    marginBottom: '2%',
-  },
-  dayText: {
-    marginBottom: '2%',
-  },
-  calendar: {
-    backgroundColor: 'background-basic-color-1',
-    width: '100%',
-    borderRadius: 5,
-  },
-  dayContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    aspectRatio: 1,
   },
 });
