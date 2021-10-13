@@ -28,9 +28,11 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {
   HomeIcon,
+  ClockIcon,
+  OptionsIcon,
   SettingsIcon,
   PersonIcon,
-  PlusIcon,
+  LargePlusIcon,
 } from '../components/icons';
 import {StatusBar} from 'react-native';
 
@@ -60,12 +62,6 @@ const HomeScreenStack = () => {
 const RunStack = () => {
   return (
     <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
-      <Stack.Screen name="Select Run Screen" component={SelectRunScreen} />
-      <Stack.Screen name="Confirm Run Screen" component={ConfirmRunScreen} />
-      <Stack.Screen
-        name="Confirm Event Screen"
-        component={ConfirmEventScreen}
-      />
       <Stack.Screen
         name="Run Test Screen"
         component={RunTestScreen}
@@ -102,14 +98,16 @@ const BottomTabBar = ({navigation, state}) => (
     selectedIndex={state.index}
     onSelect={index => navigation.navigate(state.routeNames[index])}>
     <BottomNavigationTab icon={HomeIcon} />
-    <BottomNavigationTab icon={PlusIcon} />
+    <BottomNavigationTab icon={ClockIcon} />
+    <BottomNavigationTab icon={OptionsIcon} />
   </BottomNavigation>
 );
 
 const TabNavigator = () => (
-  <Tab.Navigator tabBar={props => <BottomTabBar {...props} />}>
-    <Tab.Screen name="Home" component={HomeScreenStack} />
+  <Tab.Navigator tabBar={props => <BottomTabBar {...props} />} screenOptions={{headerShown: false}}>
+    <Tab.Screen name="Home" component={HomeScreenStack}/>
     <Tab.Screen name="Runs" component={RunStack} />
+    <Tab.Screen name="Settings" component={ProfileStack} />
   </Tab.Navigator>
 );
 

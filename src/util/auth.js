@@ -8,6 +8,7 @@ import React, {
 import queryString from 'query-string';
 import auth from '@react-native-firebase/auth';
 import {useUser, createUser, updateUser} from './db';
+import { Alert } from 'react-native';
 
 // Whether to merge extra user data from database into auth.user
 const MERGE_DB_USER = true;
@@ -67,7 +68,7 @@ function useProvideAuth() {
   const signup = (email, password, firstName, lastName) => {
     return auth()
       .createUserWithEmailAndPassword(email, password)
-      .then((response) => handleAuth(response, firstName, lastName));
+      .then(response => handleAuth(response, firstName, lastName));
   };
 
   const signin = (email, password) => {
@@ -77,9 +78,9 @@ function useProvideAuth() {
       .then(handleAuth);
   };
 
-  const signinWithProvider = (name) => {
+  const signinWithProvider = name => {
     // Get provider data by name ("password", "google", etc)
-    const providerData = allProviders.find((p) => p.name === name);
+    const providerData = allProviders.find(p => p.name === name);
 
     const provider = new providerData.providerMethod();
 
@@ -94,7 +95,7 @@ function useProvideAuth() {
     return auth().signOut();
   };
 
-  const sendPasswordResetEmail = (email) => {
+  const sendPasswordResetEmail = email => {
     return auth().sendPasswordResetEmail(email);
   };
 
@@ -105,7 +106,7 @@ function useProvideAuth() {
     return auth().confirmPasswordReset(resetCode, password);
   };
 
-  const updateEmail = (email) => {
+  const updateEmail = email => {
     return auth()
       .currentUser.updateEmail(email)
       .then(() => {
@@ -114,13 +115,13 @@ function useProvideAuth() {
       });
   };
 
-  const updatePassword = (password) => {
+  const updatePassword = password => {
     return auth().currentUser.updatePassword(password);
   };
 
   // Update auth user and persist to database (including any custom values in data)
   // Forms can call this function instead of multiple auth/db update functions
-  const updateProfile = async (data) => {
+  const updateProfile = async data => {
     await auth().currentUser.updateProfile(data);
 
     // Persist all data to the database
@@ -132,7 +133,7 @@ function useProvideAuth() {
 
   useEffect(() => {
     // Subscribe to user on mount
-    const unsubscribe = auth().onAuthStateChanged((user) => {
+    const unsubscribe = auth().onAuthStateChanged(user => {
       if (user) {
         setUser(user);
       } else {
@@ -184,7 +185,7 @@ function usePrepareUser(user) {
     // Include an array of user's auth providers, such as ["password", "google", etc]
     // Components can read this to prompt user to re-auth with the correct provider
     finalUser.providers = user.providerData.map(({providerId}) => {
-      return allProviders.find((p) => p.id === providerId).name;
+      return allProviders.find(p => p.id === providerId).name;
     });
 
     // If merging user data from database is enabled ...
@@ -218,11 +219,11 @@ function usePrepareUser(user) {
 }
 
 // Handle Firebase email link for reverting to original email
-export const handleRecoverEmail = (code) => {
+export const handleRecoverEmail = code => {
   let originalEmail;
   return auth()
     .checkActionCode(code)
-    .then((info) => {
+    .then(info => {
       originalEmail = info.data.email;
       // Revert to original email by applying action code
       return auth().applyActionCode(code);
@@ -239,37 +240,37 @@ export const handleRecoverEmail = (code) => {
 };
 
 // Handle Firebase email link for verifying email
-export const handleVerifyEmail = (code) => {
+export const handleVerifyEmail = code => {
   return auth().applyActionCode(code);
 };
 
 const allProviders = [
   {
-    id: "password",
-    name: "password",
+    id: 'password',
+    name: 'password',
   },
   {
-    id: "google.com",
-    name: "google",
+    id: 'google.com',
+    name: 'google',
     providerMethod: auth().GoogleAuthProvider,
   },
   {
-    id: "facebook.com",
-    name: "facebook",
+    id: 'facebook.com',
+    name: 'facebook',
     providerMethod: auth().FacebookAuthProvider,
     parameters: {
       // Tell fb to show popup size UI instead of full website
-      display: "popup",
+      display: 'popup',
     },
   },
   {
-    id: "twitter.com",
-    name: "twitter",
+    id: 'twitter.com',
+    name: 'twitter',
     providerMethod: auth().TwitterAuthProvider,
   },
   {
-    id: "github.com",
-    name: "github",
+    id: 'github.com',
+    name: 'github',
     providerMethod: auth().GithubAuthProvider,
   },
 ];
@@ -277,8 +278,8 @@ const allProviders = [
 // Waits on Firebase user to be initialized before resolving promise
 // This is used to ensure auth is ready before any writing to the db can happen
 const waitForFirebase = () => {
-  return new Promise((resolve) => {
-    const unsubscribe = auth().onAuthStateChanged((user) => {
+  return new Promise(resolve => {
+    const unsubscribe = auth().onAuthStateChanged(user => {
       if (user) {
         resolve(user); // Resolve promise when we have a user
         unsubscribe(); // Prevent from firing again
@@ -287,6 +288,41 @@ const waitForFirebase = () => {
   });
 };
 
-const getFromQueryString = (key) => {
+const getFromQueryString = key => {
   return queryString.parse(window.location.search)[key];
 };
+
+function reset(email) {
+  auth()
+    .sendPasswordResetEmail(email)
+    .then(() => {
+      console.log('Password reset, check your email for instructions');
+    })
+    .then(() => {
+      auth.signout();
+    })
+    .catch(error => {
+      console.log(error.code);
+      alert('Something went wrong resetting your password');
+      console.error(error);
+    });
+}
+
+export const resetPassword = email =>
+  Alert.alert(
+    'Reset Password',
+    'Are you sure you want to reset your password?',
+    [
+      {
+        text: 'Reset Password',
+        onPress: () => {
+          reset(email);
+        },
+        style: 'destructive',
+      },
+      {
+        text: 'Dismiss',
+        style: 'cancel',
+      },
+    ],
+  );

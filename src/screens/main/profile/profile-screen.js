@@ -11,22 +11,21 @@ import {
   Divider,
   Card,
 } from '@ui-kitten/components';
-import {TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import {
+  PasswordHeader,
+  SignOutHeader,
+} from '../../../components/profile/headers';
 import {useAuth} from '../../../util/auth';
 import {useTeam} from '../../../util/db';
 import {DrawerIcon} from '../../../components/icons';
+import {resetPassword} from '../../../util/auth';
 
 export const ProfileScreen = ({route, navigation}) => {
   const auth = useAuth();
   const {data: items, status} = useTeam(auth.user.teamId);
 
   const NameLabel = props => <Text category="s1">{props.label}: </Text>;
-  const openDrawer = () => {
-    navigation.openDrawer();
-  };
-  const OpenDrawerAction = () => (
-    <TopNavigationAction icon={DrawerIcon} onPress={openDrawer} />
-  );
+
   const TeamHeader = props => (
     <View {...props}>
       <Text category="h6">Team Details</Text>
@@ -43,9 +42,8 @@ export const ProfileScreen = ({route, navigation}) => {
     return (
       <>
         <TopNavigation
-          title="Profile"
+          title="Settings"
           alignment="center"
-          accessoryLeft={OpenDrawerAction}
         />
         <Divider />
         <Layout style={styles.layoutContainer} level="2">
@@ -99,6 +97,35 @@ export const ProfileScreen = ({route, navigation}) => {
                     })
                   }>
                   Change Team Membership
+                </Button>
+              </Layout>
+            </Card>
+            <Card
+              disabled={true}
+              style={{width: '100%', marginTop: '2%'}}
+              header={PasswordHeader}>
+              <Layout>
+                <Button
+                  status="danger"
+                  size="small"
+                  appearance="outline"
+                  onPress={() => resetPassword(auth.user.email)}>
+                  Reset Password
+                </Button>
+              </Layout>
+            </Card>
+            <Card
+              disabled={true}
+              style={{width: '100%', marginTop: '2%'}}
+              header={SignOutHeader}>
+              <Layout>
+                <Button
+                  block
+                  status="danger"
+                  appearance="outline"
+                  size="small"
+                  onPress={() => auth.signout()}>
+                  Sign Out
                 </Button>
               </Layout>
             </Card>

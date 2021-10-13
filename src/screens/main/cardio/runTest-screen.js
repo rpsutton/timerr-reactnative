@@ -18,14 +18,20 @@ import {setEventComplete} from '../../../util/db';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Geolocation from 'react-native-geolocation-service';
 import {hasLocationPermission} from '../../../components/runs/permissionsFunctions';
+import {useRun} from '../../../util/db';
 
 export const RunTestScreen = ({navigation, route}) => {
-  const run = route.params.run;
-  const uid = route.params.uid;
-  const event = route.params.eventItem;
+  //const run = route.params.run;
+  const {data: items, status} = useRun('btt3b6D3GewgnYzEwwkG');
+  const [run, setRun] = useState(null);
+  //const uid = route.params.uid;
+  const uid = 'jMAMF9QEWjYF57HyWHNDDpBpnn93';
+  //const event = route.params.eventItem;
   // read in countdown to start, countdown to 0, announcement interval
-  const interval = route.params.announceInterval;
-  const countdown = route.params.initialCountdown;
+  //const interval = route.params.announceInterval;
+  const interval = 5;
+  //const countdown = route.params.initialCountdown;
+  const countdown = 5;
   // get widow dimensions for timer
   const windowWidth = useWindowDimensions().width;
   // initialize states and refs
@@ -46,6 +52,13 @@ export const RunTestScreen = ({navigation, route}) => {
   // initialize style sheet
   const styles = useStyleSheet(themedStyle);
   // initialize tts
+
+  useEffect(() => {
+    if (status == 'success') {
+      setRun(items);
+    }
+  }, [items, status]);
+
   useEffect(() => {
     Tts.addEventListener('tts-start', event => null);
     Tts.addEventListener('tts-finish', event => null);
@@ -81,7 +94,7 @@ export const RunTestScreen = ({navigation, route}) => {
     watchId.current = Geolocation.watchPosition(
       position => {
         setLocation(position);
-        //console.log(position);
+        console.log(position);
       },
       error => {
         setLocation(null);
@@ -134,7 +147,7 @@ export const RunTestScreen = ({navigation, route}) => {
   // push the countdown to the beginning of the array
   // push a zero value lap to the end of the array, which is used to flag the end of run
   useEffect(() => {
-    if (run !== undefined) {
+    if (run !== null) {
       let formattedRun = [];
       formattedRun.push({time: countdown, isRest: false});
       for (let i = 0; i < run.runSequence.length; i++) {
@@ -169,7 +182,7 @@ export const RunTestScreen = ({navigation, route}) => {
       previousTime.current = formattedRun[0].time;
       setLoading(false);
     }
-  }, [countdown, run]);
+  }, [countdown, run, status]);
 
   const normalColors = [
     ['#439B12', 0.1],
@@ -215,7 +228,7 @@ export const RunTestScreen = ({navigation, route}) => {
     );
   };
 
-  if (loading || !voiceReady) {
+  if (loading || !voiceReady || status != "success") {
     return (
       <Layout
         style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
@@ -255,10 +268,13 @@ export const RunTestScreen = ({navigation, route}) => {
                   Tts.speak('complete');
                   // make sure to get the eventId from prev screen
                   // conditionally execute this, only if event id exists
+                  /*
                   if (event !== undefined && event !== null) {
                     console.log(event.id);
                     setEventComplete(event.id, uid);
+
                   }
+                  */
                   navigation.navigate('Home Screen');
                 }
               }}

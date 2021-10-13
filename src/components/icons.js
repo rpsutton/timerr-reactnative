@@ -5,6 +5,7 @@ import {Icon} from '@ui-kitten/components';
 
 const HomeIcon = (props) => <Icon name="home-outline" {...props} />;
 const ClockIcon = (props) => <Icon name="clock-outline" {...props} />;
+const OptionsIcon = (props) => <Icon name="options-2-outline" {...props} />;
 const SearchIcon = (props) => <Icon name="search-outline" {...props} />;
 const PlusIcon = (props) => <Icon name="plus-square-outline" {...props} />;
 const LargePlusIcon = (props) => (<Icon {...props} name="plus-square-outline" style={[props.style, {width: 35, height: 35}]} />);
@@ -32,6 +33,7 @@ const SuccessIcon = (props) => <Icon {...props} name="checkmark" style={[props.s
 export {
   HomeIcon,
   ClockIcon,
+  OptionsIcon,
   SearchIcon,
   PlusIcon,
   LargePlusIcon,

@@ -76,10 +76,6 @@ export function createPost(data) {
   return firestore().collection('posts').add(data);
 }
 
-export function getRun(runId) {
-  return firestore().collection('runs').doc(runId).get();
-}
-
 export function checkValidTeamId(teamId) {
   return firestore()
     .collection('teams')
