@@ -2,67 +2,64 @@ import React, {useEffect, useState} from 'react';
 import {
   Layout,
   Text,
-  TopNavigation,
-  TopNavigationAction,
   StyleService,
   useStyleSheet,
   Button,
   IndexPath,
   Select,
   SelectItem,
-  Card,
+  Spinner,
+  List,
+  ListItem,
   Divider,
-  Toggle,
 } from '@ui-kitten/components';
 import {View, ScrollView} from 'react-native';
-import {
-  LargeBackIcon,
-  FailureIcon,
-  SuccessIcon,
-} from '../../../components/icons';
+import {TopNavCustom} from '../../../components/universal/topnav';
+import {useAuth} from '../../../util/auth';
+import firestore from '@react-native-firebase/firestore';
 
 export const SelectRunScreen = ({navigation, route}) => {
-  const allEvents = route.params.todaysEvents;
-  const [events, setEvents] = useState([]);
-  const teamRuns = route.params.teamRuns;
-  const eventsCompleteNumber = route.params.eventsCompleteNumber;
-  const uid = route.params.uid;
+  const date = new Date();
+  const [loading, setLoading] = useState(true);
+  const [runs, setRuns] = useState([]);
+  const auth = useAuth();
+  const user = auth.user;
   const styles = useStyleSheet(themedStyle);
-  const [checked, setChecked] = useState(true);
-  const [eventIndex, seteventIndex] = useState(new IndexPath(0));
   const [runIndex, setRunIndex] = useState(new IndexPath(0));
   const [countdownIndex, setCountdownIndex] = useState(new IndexPath(0));
   const [announceIntervalIndex, setAnnounceIntervalIndex] = useState(
     new IndexPath(4),
   );
 
+  const data = [
+    {runName: '120s', date: 'Mon Oct 11 2021'},
+    {runName: 'Man U', date: 'Sat Oct 9 2021'},
+    {runName: 'Fartlek', date: 'Fri Oct 8 2021'},
+  ];
+
   useEffect(() => {
-    let arr = [];
-    for (const ev of allEvents) {
-      console.log(ev);
-      if (!ev.event.eventCompletedPlayers.includes(uid)) {
-        arr.push(ev);
-      }
+    if (user !== null && user !== undefined) {
+      const subscriber = firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('savedRuns')
+        .onSnapshot(querySnapshot => {
+          const savedRuns = [];
+          querySnapshot.forEach(documentSnapshot => {
+            savedRuns.push({
+              ...documentSnapshot.data(),
+              key: documentSnapshot.id,
+            });
+          });
+          setRuns(savedRuns);
+          setLoading(false);
+        });
+
+      // Unsubscribe from events when no longer in use
+      return () => subscriber();
     }
-    setEvents(arr);
-  }, [allEvents]);
+  }, [user]);
 
-  const goBack = () => {
-    navigation.goBack();
-  };
-  const BackAction = () => (
-    <TopNavigationAction icon={LargeBackIcon} onPress={goBack} />
-  );
-
-  const onCheckedChange = isChecked => {
-    setChecked(isChecked);
-  };
-
-  const rendereventOption = ev => (
-    <SelectItem title={ev.event.title} key={eventIndex} />
-  );
-
-  const runDisplayValue = teamRuns[runIndex.row].runName;
   const renderRunOption = run => (
     <SelectItem title={run.runName} key={runIndex} />
   );
@@ -103,243 +100,111 @@ export const SelectRunScreen = ({navigation, route}) => {
     <SelectItem title={val.display} key={announceIntervalIndex} />
   );
 
-  const Footer = props => {
-    if (eventsCompleteNumber <= 0) {
-      return (
-        <View {...props}>
-          <Text category="s1" status="danger">
-            {eventsCompleteNumber}/{allEvents.length} Assigned Runs Complete
-          </Text>
-        </View>
-      );
-    } else if (
-      eventsCompleteNumber > 0 &&
-      eventsCompleteNumber < allEvents.length
-    ) {
-      return (
-        <View {...props}>
-          <Text category="s1" status="warning">
-            {eventsCompleteNumber}/{allEvents.length} Assigned Runs Complete
-          </Text>
-        </View>
-      );
-    } else {
-      <View {...props}>
-        <Text category="s1" status="success">
-          {eventsCompleteNumber}/{allEvents.length} Assigned Runs Complete
-        </Text>
-      </View>;
-    }
-  };
-
-  const EventsSection = () => {
-    if (events.length === 0) {
-      return (
-        <Card
-          style={styles.viewWorkoutContainer}
-          status="primary"
-          disabled={true}>
-          <Text category="h6" status="primary">
-            No Runs Assigned Today
-          </Text>
-        </Card>
-      );
-    } else {
-      return (
-        <Card
-          disabled={true}
-          style={styles.viewWorkoutContainer}
-          status="primary"
-          footer={Footer}>
-          <Text category="h4" style={{marginBottom: '2%'}}>
-            Todays Assigned Runs
-          </Text>
-          {allEvents.map((item, index) => {
-            if (item.event.eventCompletedPlayers.includes(uid)) {
-            }
-            return (
-              <View
-                key={index}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  marginBottom: '1%',
-                }}>
-                <Text category="s1">- {item.event.title}</Text>
-                {item.event.eventCompletedPlayers.includes(uid) ? (
-                  <SuccessIcon />
-                ) : (
-                  <FailureIcon />
-                )}
-                <Divider />
-              </View>
-            );
-          })}
-        </Card>
-      );
-    }
-  };
-
-  if (events.length > 0) {
+  function renderItem({item, index}) {
     return (
-      <>
-        <TopNavigation
-          title="Select Run"
-          alignment="center"
-          accessoryLeft={BackAction}
-        />
-        <Layout style={styles.container} level="3">
-          <ScrollView contentContainerStyle={styles.contentContainerStyle}>
-            <EventsSection />
-            <Toggle
-              checked={checked}
-              onChange={onCheckedChange}
-              style={{marginBottom: '2%'}}>
-              Assigned Runs
-            </Toggle>
-            {checked ? (
-              <Select
-                label="Pick Assigned Run"
-                size="large"
-                style={styles.select}
-                placeholder="Default"
-                value={events[eventIndex.row].event.title}
-                selectedIndex={eventIndex}
-                onSelect={index => seteventIndex(index)}>
-                {events.map(rendereventOption)}
-              </Select>
-            ) : (
-              <Select
-                caption="Practice Runs Only. These Don't Count Towards Assignments"
-                label="Pick Any Run"
-                size="large"
-                style={styles.select}
-                placeholder="Default"
-                value={runDisplayValue}
-                selectedIndex={runIndex}
-                onSelect={index => setRunIndex(index)}>
-                {teamRuns.map(renderRunOption)}
-              </Select>
-            )}
+      <ListItem
+        disabled={true}
+        key={index}
+        title={`${index + 1}. ${item.runName}`}
+        description={item.date}
+      />
+    );
+  }
 
-            <View style={styles.bottomSelections}>
-              <Select
-                label="Countdown Before Run"
-                size="large"
-                style={styles.bottomSelect}
-                placeholder="Default"
-                value={countdownDisplayValue}
-                selectedIndex={countdownIndex}
-                onSelect={index => setCountdownIndex(index)}>
-                {countdown.map(renderCountdownOption)}
-              </Select>
-              <Select
-                label="Announce Time Every"
-                size="large"
-                style={styles.bottomSelect}
-                placeholder="Default"
-                value={announceIntervalDisplayValue}
-                selectedIndex={announceIntervalIndex}
-                onSelect={index => setAnnounceIntervalIndex(index)}>
-                {announceInterval.map(renderAnnounceIntervalOption)}
-              </Select>
-            </View>
-            {checked ? (
-              <Button
-                style={styles.startButton}
-                size="giant"
-                onPress={() =>
-                  navigation.navigate('Confirm Event Screen', {
-                    initialCountdown: countdown[countdownIndex.row].time,
-                    announceInterval:
-                      announceInterval[announceIntervalIndex.row].time,
-                    eventItem: events[eventIndex.row],
-                    uid: uid,
-                  })
-                }>
-                Select Run
-              </Button>
-            ) : (
-              <Button
-                style={styles.startButton}
-                size="giant"
-                onPress={() =>
-                  navigation.navigate('Confirm Run Screen', {
-                    initialCountdown: countdown[countdownIndex.row].time,
-                    announceInterval:
-                      announceInterval[announceIntervalIndex.row].time,
-                    run: teamRuns[runIndex.row],
-                  })
-                }>
-                Select Run
-              </Button>
-            )}
-          </ScrollView>
-        </Layout>
-      </>
+  function Header() {
+    return (
+      <View style={{marginVertical: '4%', width: '100%'}}>
+        <Text category="s1" style={{fontWeight: '900'}}>
+          {date.toDateString()}
+        </Text>
+        <Text
+          status="basic"
+          category="h2"
+          style={{fontSize: 32, fontWeight: '900', marginBottom: '4%'}}>
+          Practice Your Runs?
+        </Text>
+        <Select
+          label="Pick A Run To Practice"
+          size="large"
+          style={styles.select}
+          placeholder="Default"
+          value={runs[runIndex.row].runName}
+          selectedIndex={runIndex}
+          onSelect={index => setRunIndex(index)}>
+          {runs.map(renderRunOption)}
+        </Select>
+        <View style={styles.bottomSelections}>
+          <Select
+            label="Countdown Before Run"
+            size="large"
+            style={styles.bottomSelect}
+            placeholder="Default"
+            value={countdownDisplayValue}
+            selectedIndex={countdownIndex}
+            onSelect={index => setCountdownIndex(index)}>
+            {countdown.map(renderCountdownOption)}
+          </Select>
+          <Select
+            label="Announce Time Every"
+            size="large"
+            style={styles.bottomSelect}
+            placeholder="Default"
+            value={announceIntervalDisplayValue}
+            selectedIndex={announceIntervalIndex}
+            onSelect={index => setAnnounceIntervalIndex(index)}>
+            {announceInterval.map(renderAnnounceIntervalOption)}
+          </Select>
+        </View>
+        <Button
+          style={styles.startButton}
+          size="giant"
+          onPress={() =>
+            navigation.navigate('Run Stack', {
+              screen: 'Confirm Run Screen',
+              params: {
+                initialCountdown: countdown[countdownIndex.row].time,
+                announceInterval:
+                  announceInterval[announceIntervalIndex.row].time,
+                runId: runs[runIndex.row].runId,
+              },
+            })
+          }>
+          Select Run
+        </Button>
+        <Text category="h2" style={{fontWeight: '900', marginTop: '4%'}}>
+          Your Recent Runs
+        </Text>
+      </View>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Layout style={styles.loadingContainer} level="2">
+        <Spinner size="giant" status="primary" />
+      </Layout>
     );
   } else {
     return (
       <>
-        <TopNavigation
-          title="Select Run"
-          alignment="center"
-          accessoryLeft={BackAction}
-        />
-        <Layout style={styles.container} level="3">
-          <ScrollView contentContainerStyle={styles.contentContainerStyle}>
-            <EventsSection />
-            {teamRuns.length <= 0 ? (
-              <Text>Your Coach has not created any runs yet</Text>
-            ) : (
-              <Select
-                label="Pick Any Run to Practice"
-                size="large"
-                style={styles.select}
-                placeholder="Default"
-                value={runDisplayValue}
-                selectedIndex={runIndex}
-                onSelect={index => setRunIndex(index)}>
-                {teamRuns.map(renderRunOption)}
-              </Select>
-            )}
-            <View style={styles.bottomSelections}>
-              <Select
-                label="Countdown Before Run"
-                size="large"
-                style={styles.bottomSelect}
-                placeholder="Default"
-                value={countdownDisplayValue}
-                selectedIndex={countdownIndex}
-                onSelect={index => setCountdownIndex(index)}>
-                {countdown.map(renderCountdownOption)}
-              </Select>
-              <Select
-                label="Announce Time Every"
-                size="large"
-                style={styles.bottomSelect}
-                placeholder="Default"
-                value={announceIntervalDisplayValue}
-                selectedIndex={announceIntervalIndex}
-                onSelect={index => setAnnounceIntervalIndex(index)}>
-                {announceInterval.map(renderAnnounceIntervalOption)}
-              </Select>
-            </View>
-            <Button
-              style={styles.startButton}
-              size="giant"
-              onPress={() =>
-                navigation.navigate('Confirm Run Screen', {
-                  initialCountdown: countdown[countdownIndex.row].time,
-                  announceInterval:
-                    announceInterval[announceIntervalIndex.row].time,
-                  run: teamRuns[runIndex.row],
-                })
-              }>
-              Select Run
-            </Button>
-          </ScrollView>
+        <TopNavCustom title={`Hello, ${auth.user.firstName}.`} />
+        <Layout style={styles.container} level="2">
+          {runs.length == 0 ? (
+            <Text
+              status="basic"
+              category="h2"
+              style={{fontSize: 32, fontWeight: '900'}}>
+              You have not saved any runs yet.
+            </Text>
+          ) : (
+            <List
+              data={data}
+              renderItem={renderItem}
+              ListHeaderComponent={Header}
+              ItemSeparatorComponent={Divider}
+              style={{height: '100%', width: '95%', alignSelf: 'center'}}
+            />
+          )}
         </Layout>
       </>
     );
@@ -351,9 +216,12 @@ const themedStyle = StyleService.create({
     flex: 1,
     width: '100%',
   },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   contentContainerStyle: {
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
     alignSelf: 'center',
     width: '95%',
   },

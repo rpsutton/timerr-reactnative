@@ -7,7 +7,6 @@ import {InitializingScreen} from './initializing-screen';
 import {HomeScreen} from '../screens/main/home/home-screen';
 import {SelectRunScreen} from '../screens/main/cardio/select-run-screen';
 import {ConfirmRunScreen} from '../screens/main/cardio/confirm-run-screen';
-import {ConfirmEventScreen} from '../screens/main/cardio/confirm-event-screen';
 import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
 import {SettingsScreen} from '../screens/main/settings/settings-screen';
 import {ProfileScreen} from '../screens/main/profile/profile-screen';
@@ -27,12 +26,11 @@ import {
 } from '@ui-kitten/components';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {
-  HomeIcon,
   ClockIcon,
   OptionsIcon,
   SettingsIcon,
   PersonIcon,
-  LargePlusIcon,
+  PlusIcon,
 } from '../components/icons';
 import {StatusBar} from 'react-native';
 
@@ -44,24 +42,22 @@ const HomeScreenStack = () => {
   return (
     <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
       <Stack.Screen name="Home Screen" component={HomeScreen} />
+    </Stack.Navigator>
+  );
+};
+
+const SelectStack = () => {
+  return (
+    <Stack.Navigator headerMode="none" initialRouteName="Select Run Screen">
       <Stack.Screen name="Select Run Screen" component={SelectRunScreen} />
-      <Stack.Screen name="Confirm Run Screen" component={ConfirmRunScreen} />
-      <Stack.Screen
-        name="Confirm Event Screen"
-        component={ConfirmEventScreen}
-      />
-      <Stack.Screen
-        name="Run Test Screen"
-        component={RunTestScreen}
-        options={{gestureEnabled: false}}
-      />
     </Stack.Navigator>
   );
 };
 
 const RunStack = () => {
   return (
-    <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
+    <Stack.Navigator headerMode="none" initialRouteName="Confirm Run Screen">
+      <Stack.Screen name="Confirm Run Screen" component={ConfirmRunScreen} />
       <Stack.Screen
         name="Run Test Screen"
         component={RunTestScreen}
@@ -97,40 +93,18 @@ const BottomTabBar = ({navigation, state}) => (
   <BottomNavigation
     selectedIndex={state.index}
     onSelect={index => navigation.navigate(state.routeNames[index])}>
-    <BottomNavigationTab icon={HomeIcon} />
+    <BottomNavigationTab icon={PlusIcon} />
     <BottomNavigationTab icon={ClockIcon} />
     <BottomNavigationTab icon={OptionsIcon} />
   </BottomNavigation>
 );
 
 const TabNavigator = () => (
-  <Tab.Navigator tabBar={props => <BottomTabBar {...props} />} screenOptions={{headerShown: false}}>
-    <Tab.Screen name="Home" component={HomeScreenStack}/>
-    <Tab.Screen name="Runs" component={RunStack} />
+  <Tab.Navigator tabBar={props => <BottomTabBar {...props} />} screenOptions={{headerShown: false}} initialRouteName="Select">
+    <Tab.Screen name="Home" component={HomeScreenStack} />
+    <Tab.Screen name="Select" component={SelectStack} />
     <Tab.Screen name="Settings" component={ProfileStack} />
   </Tab.Navigator>
-);
-
-const DrawerContent = ({navigation, state}) => (
-  <Drawer
-    selectedIndex={new IndexPath(state.index)}
-    onSelect={index => navigation.navigate(state.routeNames[index.row])}>
-    <DrawerItem title="Home" accessoryLeft={HomeIcon} />
-    <DrawerItem title="Profile" accessoryLeft={PersonIcon} />
-    <DrawerItem title="Settings" accessoryLeft={SettingsIcon} />
-  </Drawer>
-);
-
-const DrawerNavigator = () => (
-  <DrawerObj.Navigator drawerContent={props => <DrawerContent {...props} />}>
-    <DrawerObj.Screen
-      name="Home"
-      component={TabNavigator}
-      options={{swipeEnabled: false}}
-    />
-    <DrawerObj.Screen name="Profile" component={ProfileStack} />
-    <DrawerObj.Screen name="Settings" component={SettingsScreen} />
-  </DrawerObj.Navigator>
 );
 
 function MainTabNavigator() {
@@ -157,7 +131,8 @@ function MainTabNavigator() {
         }}>
         <StatusBar barStyle="dark-content" />
         <Stack.Navigator headerMode="none">
-          <Stack.Screen name="Main" component={DrawerNavigator} />
+          <Stack.Screen name="Main Stack" component={TabNavigator} />
+          <Stack.Screen name="Run Stack" component={RunStack} />
         </Stack.Navigator>
       </SafeAreaView>
     );
