@@ -51,6 +51,11 @@ export function useRun(id) {
   return useQuery(id && firestore().collection('runs').doc(id));
 }
 
+// Create a run
+export function createRun(data) {
+  return firestore().collection("runs").add(data);
+}
+
 // Update an item
 export function updateItem(id, data) {
   return firestore().collection('items').doc(id).update(data);

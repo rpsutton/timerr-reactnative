@@ -11,7 +11,7 @@ import {
   ListItem,
   Divider,
 } from '@ui-kitten/components';
-import {View, Dimensions} from 'react-native';
+import {View} from 'react-native';
 import {TopNavCustom} from '../../../components/universal/topnav';
 import {useAuth} from '../../../util/auth';
 import firestore from '@react-native-firebase/firestore';
@@ -61,23 +61,17 @@ export const HomeScreen = ({navigation}) => {
 
   const Footer = () => {
     return (
-      <View>
-        <Text
-          status="basic"
-          category="h2"
-          style={{fontSize: 32, fontWeight: '900', marginTop: '4%'}}>
-          Add a New Run
-        </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-start',
-            marginTop: '4%',
-          }}>
-          <Button appearance="outline">Add a Run By Code</Button>
-          <Button style={{marginLeft: '2%'}}>Create Custom Run</Button>
-        </View>
-      </View>
+      <Button
+        onPress={() =>
+          navigation.navigate('Create Run Description Screen', {
+            uid: user.uid,
+          })
+        }
+        status="success"
+        size="giant"
+        style={{marginTop: '4%'}}>
+        Add A Run To My List
+      </Button>
     );
   };
 
@@ -105,8 +99,6 @@ export const HomeScreen = ({navigation}) => {
       </Layout>
     );
   } else {
-    const width = Dimensions.get('window').width;
-    const height = Dimensions.get('window').height;
     return (
       <>
         <TopNavCustom title={`Hello, ${auth.user.firstName}.`} />

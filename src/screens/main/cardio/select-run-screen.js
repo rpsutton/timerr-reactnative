@@ -13,12 +13,12 @@ import {
   ListItem,
   Divider,
 } from '@ui-kitten/components';
-import {View, ScrollView} from 'react-native';
+import {View} from 'react-native';
 import {TopNavCustom} from '../../../components/universal/topnav';
 import {useAuth} from '../../../util/auth';
 import firestore from '@react-native-firebase/firestore';
 
-export const SelectRunScreen = ({navigation, route}) => {
+export const SelectRunScreen = ({navigation}) => {
   const date = new Date();
   const [loading, setLoading] = useState(true);
   const [runs, setRuns] = useState([]);

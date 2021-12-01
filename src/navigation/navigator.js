@@ -1,14 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useState} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import {createDrawerNavigator} from '@react-navigation/drawer';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {InitializingScreen} from './initializing-screen';
 import {HomeScreen} from '../screens/main/home/home-screen';
 import {SelectRunScreen} from '../screens/main/cardio/select-run-screen';
 import {ConfirmRunScreen} from '../screens/main/cardio/confirm-run-screen';
 import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
-import {SettingsScreen} from '../screens/main/settings/settings-screen';
+import {CreateRunDescriptionScreen} from '../screens/main/home/createRunDescription-screen';
+import {CreateRunScreen} from '../screens/main/home/create-run-screen';
 import {ProfileScreen} from '../screens/main/profile/profile-screen';
 import {EditTeamMembershipScreen} from '../screens/main/profile/editTeamMembership-screen';
 import {EditNameScreen} from '../screens/main/profile/editName-screen';
@@ -17,31 +17,20 @@ import {SignUpScreen} from '../screens/auth/signUp-screen';
 import {JoinTeamScreen} from '../screens/auth/joinTeam-screen';
 import {ForgotPasswordScreen} from '../screens/auth/forgotPassword-screen';
 import auth from '@react-native-firebase/auth';
-import {
-  Drawer,
-  DrawerItem,
-  IndexPath,
-  BottomNavigation,
-  BottomNavigationTab,
-} from '@ui-kitten/components';
+import {BottomNavigation, BottomNavigationTab} from '@ui-kitten/components';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {
-  ClockIcon,
-  OptionsIcon,
-  SettingsIcon,
-  PersonIcon,
-  PlusIcon,
-} from '../components/icons';
+import {ClockIcon, OptionsIcon, PlusIcon} from '../components/icons';
 import {StatusBar} from 'react-native';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
-const DrawerObj = createDrawerNavigator();
 
 const HomeScreenStack = () => {
   return (
     <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
       <Stack.Screen name="Home Screen" component={HomeScreen} />
+      <Stack.Screen name="Create Run Screen" component={CreateRunScreen} />
+      <Stack.Screen name="Create Run Description Screen" component={CreateRunDescriptionScreen} />
     </Stack.Navigator>
   );
 };
@@ -91,6 +80,7 @@ const AuthScreenStack = () => (
 
 const BottomTabBar = ({navigation, state}) => (
   <BottomNavigation
+    appearance="noIndicator"
     selectedIndex={state.index}
     onSelect={index => navigation.navigate(state.routeNames[index])}>
     <BottomNavigationTab icon={PlusIcon} />
@@ -100,7 +90,10 @@ const BottomTabBar = ({navigation, state}) => (
 );
 
 const TabNavigator = () => (
-  <Tab.Navigator tabBar={props => <BottomTabBar {...props} />} screenOptions={{headerShown: false}} initialRouteName="Select">
+  <Tab.Navigator
+    tabBar={props => <BottomTabBar {...props} />}
+    screenOptions={{headerShown: false}}
+    initialRouteName="Select">
     <Tab.Screen name="Home" component={HomeScreenStack} />
     <Tab.Screen name="Select" component={SelectStack} />
     <Tab.Screen name="Settings" component={ProfileStack} />
