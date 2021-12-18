@@ -67,7 +67,7 @@ export const HomeScreen = ({navigation}) => {
             uid: user.uid,
           })
         }
-        status="success"
+        status="primary"
         size="giant"
         style={{marginTop: '4%'}}>
         Add A Run To My List
@@ -76,7 +76,7 @@ export const HomeScreen = ({navigation}) => {
   };
 
   const EditButton = () => (
-    <Button size="tiny" status="primary">
+    <Button size="tiny" status="primary" appearance="outline">
       View
     </Button>
   );

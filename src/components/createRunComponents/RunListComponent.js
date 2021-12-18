@@ -1,25 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Text, Card, Input } from '@ui-kitten/components';
 import { View } from 'react-native';
 
-export const RunListComponent = (props, { navigation, route }) => {
+export const RunListComponent = (props) => {
   const lap = props.item;
   const lapArray = props.lapArray;
+  const distanceUnits = props.distanceUnits;
   const index = props.index;
   const setLapArray = props.setLapArray;
   const lapNumber = index + 1;
-  const [distanceDownfield, setDistanceDownfield] = useState();
 
   const updateDownfieldDistanceQuantity = e => {
     let newArr = [...lapArray];
     newArr[index].downfield.distance.quantity = e;
-    setLapArray(newArr);
-    console.log(newArr);
-  };
-
-  const updateDownfieldDistanceMeasure = e => {
-    let newArr = [...lapArray];
-    newArr[index].downfield.distance.measure = e;
     setLapArray(newArr);
     console.log(newArr);
   };
@@ -55,13 +48,6 @@ export const RunListComponent = (props, { navigation, route }) => {
   const updateUpfieldDistanceQuantity = e => {
     let newArr = [...lapArray];
     newArr[index].upfield.distance.quantity = e;
-    setLapArray(newArr);
-    console.log(newArr);
-  };
-
-  const updateUpfieldDistanceMeasure = e => {
-    let newArr = [...lapArray];
-    newArr[index].upfield.distance.measure = e;
     setLapArray(newArr);
     console.log(newArr);
   };
@@ -102,7 +88,7 @@ export const RunListComponent = (props, { navigation, route }) => {
       <Input
         style={{ padding: 0, margin: 0 }}
         keyboardType="numeric"
-        label="Distance Downfield"
+        label={`Distance Downfield - ${distanceUnits}`}
         placeholder="Enter Distance Ran Downfield"
         value={lap.downfield.distance.quantity.toString()}
         onChangeText={nextValue => updateDownfieldDistanceQuantity(nextValue)}
@@ -157,7 +143,7 @@ export const RunListComponent = (props, { navigation, route }) => {
       <Input
         placeholder="Enter Distance Ran Upfield"
         keyboardType="numeric"
-        label="Distance Upfield"
+        label={`Distance Upfield - ${distanceUnits}`}
         value={lap.upfield.distance.quantity.toString()}
         onChangeText={nextValue => updateUpfieldDistanceQuantity(nextValue)}
       />

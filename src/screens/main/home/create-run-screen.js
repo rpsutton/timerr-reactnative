@@ -60,7 +60,7 @@ export const CreateRunScreen = ({navigation, route}) => {
   const [loading, setLoading] = useState();
 
   // run sequence
-  const [lapArray, setLapArray] = useState([]);
+  const [lapArray, setLapArray] = useState([lapFramework]);
 
   function addLap() {
     let newArr = [...lapArray];
@@ -144,6 +144,7 @@ export const CreateRunScreen = ({navigation, route}) => {
         item={item}
         setLapArray={setLapArray}
         lapArray={lapArray}
+        distanceUnits={distanceUnits}
       />
     );
   }

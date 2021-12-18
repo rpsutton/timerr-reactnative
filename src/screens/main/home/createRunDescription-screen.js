@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, ScrollView} from 'react-native';
+import {View, ScrollView, Alert} from 'react-native';
 import {
   Input,
   Select,
@@ -15,22 +15,16 @@ import {LargeBackIcon} from '../../../components/icons';
 export function CreateRunDescriptionScreen({navigation}) {
   const [runName, setRunName] = useState('');
   const [runDescription, setRunDescription] = useState('');
-  const [distanceUnits, setDistanceUnits] = useState('meters');
+  const [unitsIndex, setUnitsIndex] = useState(new IndexPath(0));
 
-  const [distanceUnitsOptionsIndex, setDistanceUnitsOptionsIndex] = useState(
-    new IndexPath(0),
-  );
-  const distanceUnitsOptions = [
+  const units = [
     {display: 'meters', distanceUnits: 'meters'},
     {display: 'yards', distanceUnits: 'yards'},
     {display: 'feet', distanceUnits: 'feet'},
   ];
 
-  const distanceUnitsOptionsDisplayValue =
-    distanceUnitsOptions[distanceUnitsOptionsIndex.row].display;
-
-  const renderDistanceUnitsOption = val => (
-    <SelectItem title={val.display} key={distanceUnitsOptionsIndex} />
+  const renderUnitOption = run => (
+    <SelectItem title={run.display} key={unitsIndex} />
   );
 
   const goBack = () => {
@@ -39,6 +33,20 @@ export function CreateRunDescriptionScreen({navigation}) {
   const BackAction = () => (
     <TopNavigationAction icon={LargeBackIcon} onPress={goBack} />
   );
+
+  function onPress() {
+    if (runName !== '' && runDescription !== '') {
+      navigation.navigate('Create Run Screen', {
+        runName: runName,
+        runDescription: runDescription,
+        distanceUnits: units[unitsIndex.row].distanceUnits,
+      });
+    } else {
+      Alert.alert(
+        'Please make sure name and description fields are filled in.',
+      );
+    }
+  }
 
   return (
     <>
@@ -67,27 +75,15 @@ export function CreateRunDescriptionScreen({navigation}) {
               label="Distance Units"
               size="large"
               placeholder="Default"
-              value={distanceUnitsOptionsDisplayValue}
-              selectedIndex={distanceUnitsOptionsIndex}
-              onSelect={index => {
-                setDistanceUnitsOptionsIndex(index);
-                setDistanceUnits(
-                  distanceUnitsOptions[distanceUnitsOptionsIndex.row]
-                    .distanceUnits,
-                );
-              }}>
-              {distanceUnitsOptions.map(renderDistanceUnitsOption)}
+              value={units[unitsIndex.row].distanceUnits}
+              selectedIndex={unitsIndex}
+              onSelect={index => setUnitsIndex(index)}>
+              {units.map(renderUnitOption)}
             </Select>
             <Button
               size="giant"
               style={{marginTop: '4%'}}
-              onPress={() =>
-                navigation.navigate('Create Run Screen', {
-                  runName: runName,
-                  runDescription: runDescription,
-                  distanceUnits: distanceUnits,
-                })
-              }>
+              onPress={() => onPress()}>
               Next
             </Button>
           </View>
