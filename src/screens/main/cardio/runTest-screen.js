@@ -16,22 +16,15 @@ import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
 import Tts from 'react-native-tts';
 import {setEventComplete} from '../../../util/db';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import Geolocation from 'react-native-geolocation-service';
-import {hasLocationPermission} from '../../../components/runs/permissionsFunctions';
-import {useRun} from '../../../util/db';
+//import Geolocation from 'react-native-geolocation-service';
+//import {hasLocationPermission} from '../../../components/runs/permissionsFunctions';
 
 export const RunTestScreen = ({navigation, route}) => {
-  //const run = route.params.run;
-  const {data: items, status} = useRun('btt3b6D3GewgnYzEwwkG');
-  const [run, setRun] = useState(null);
-  //const uid = route.params.uid;
-  const uid = 'jMAMF9QEWjYF57HyWHNDDpBpnn93';
-  //const event = route.params.eventItem;
+  const run = route.params.run;
+  const uid = route.params.uid;
   // read in countdown to start, countdown to 0, announcement interval
-  //const interval = route.params.announceInterval;
-  const interval = 5;
-  //const countdown = route.params.initialCountdown;
-  const countdown = 5;
+  const interval = route.params.announceInterval;
+  const countdown = route.params.initialCountdown;
   // get widow dimensions for timer
   const windowWidth = useWindowDimensions().width;
   // initialize states and refs
@@ -54,12 +47,6 @@ export const RunTestScreen = ({navigation, route}) => {
   // initialize tts
 
   useEffect(() => {
-    if (status == 'success') {
-      setRun(items);
-    }
-  }, [items, status]);
-
-  useEffect(() => {
     Tts.addEventListener('tts-start', event => null);
     Tts.addEventListener('tts-finish', event => null);
     Tts.addEventListener('tts-cancel', event => null);
@@ -72,6 +59,7 @@ export const RunTestScreen = ({navigation, route}) => {
     });
   }, []);
 
+  /*
   const [forceLocation, setForceLocation] = useState(true);
   const [highAccuracy, setHighAccuracy] = useState(true);
   const [locationDialog, setLocationDialog] = useState(true);
@@ -82,6 +70,9 @@ export const RunTestScreen = ({navigation, route}) => {
 
   const watchId = useRef(null);
 
+  */
+
+  /*
   const getLocationUpdates = async () => {
     const hasPermission = await hasLocationPermission();
 
@@ -125,6 +116,8 @@ export const RunTestScreen = ({navigation, route}) => {
     }
   };
 
+  */
+
   // this is not great because the timer resets only when key is altered
   // resetting means moving the key to 0, but if the key is already at 0 nothing will happen unil onComplete
   // the quick incrementing of the key enables reset to 0 whem index is already 0, but is poor UX
@@ -149,7 +142,7 @@ export const RunTestScreen = ({navigation, route}) => {
   useEffect(() => {
     if (run !== null) {
       let formattedRun = [];
-      formattedRun.push({time: countdown, isRest: false});
+      formattedRun.push({time: countdown, isRest: false, distance: null});
       for (let i = 0; i < run.runSequence.length; i++) {
         let restTimeDownfield =
           run.runSequence[i].downfield.restTime.minutes * 60 +
@@ -164,16 +157,28 @@ export const RunTestScreen = ({navigation, route}) => {
           run.runSequence[i].upfield.targetTime.minutes * 60 +
           run.runSequence[i].upfield.targetTime.seconds;
 
-        formattedRun.push({time: targetTimeDownfield, isRest: false});
+        formattedRun.push({
+          time: targetTimeDownfield,
+          isRest: false,
+          distance: run.runSequence[i].downfield.distance.quantity,
+        });
 
         if (restTimeDownfield > 0) {
-          formattedRun.push({time: restTimeDownfield, isRest: true});
+          formattedRun.push({
+            time: restTimeDownfield,
+            isRest: true,
+            distance: 0,
+          });
         }
 
-        formattedRun.push({time: targetTimeUpfield, isRest: false});
+        formattedRun.push({
+          time: targetTimeUpfield,
+          isRest: false,
+          distance: run.runSequence[i].upfield.distance.quantity,
+        });
 
         if (restTimeUpfield) {
-          formattedRun.push({time: restTimeUpfield, isRest: true});
+          formattedRun.push({time: restTimeUpfield, isRest: true, distance: 0});
         }
       }
       formattedRun.push({time: 0, isRest: false});
@@ -182,7 +187,7 @@ export const RunTestScreen = ({navigation, route}) => {
       previousTime.current = formattedRun[0].time;
       setLoading(false);
     }
-  }, [countdown, run, status]);
+  }, [countdown, run]);
 
   const normalColors = [
     ['#439B12', 0.1],
@@ -205,7 +210,7 @@ export const RunTestScreen = ({navigation, route}) => {
       {
         text: 'Cancel Run',
         onPress: () => {
-          removeLocationUpdates();
+          //removeLocationUpdates();
           navigation.goBack();
         },
         style: 'destructive',
@@ -228,7 +233,7 @@ export const RunTestScreen = ({navigation, route}) => {
     );
   };
 
-  if (loading || !voiceReady || status != "success") {
+  if (loading || !voiceReady || run === null) {
     return (
       <Layout
         style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}
@@ -310,14 +315,17 @@ export const RunTestScreen = ({navigation, route}) => {
                   return (
                     <View
                       style={{justifyContent: 'center', alignItems: 'center'}}>
-                      <Text category="h5" style={{fontSize: 60}}>
-                        {minutes} : {seconds}
-                      </Text>
-                      {isPlaying && (
-                        <Text category="h5" style={{fontSize: 40}}>
-                          {location?.coords?.speed.toFixed(2)} m/s
+                      {!runSequence[key].isRest && key > 0 && (
+                        <Text category="h1">
+                          {runSequence[key].distance} {run.distanceUnits}
                         </Text>
                       )}
+                      {runSequence[key].isRest && (
+                        <Text category="h1">rest</Text>
+                      )}
+                      <Text category="h5" style={{fontSize: 70}}>
+                        {minutes} : {seconds}
+                      </Text>
                     </View>
                   );
                 } else {
@@ -336,7 +344,7 @@ export const RunTestScreen = ({navigation, route}) => {
               status="success"
               style={styles.beginButton}
               onPress={() => {
-                getLocationUpdates();
+                //getLocationUpdates();
                 Tts.speak(countdown.toString());
                 ReactNativeHapticFeedback.trigger('impactHeavy');
                 setIsPlaying(true);

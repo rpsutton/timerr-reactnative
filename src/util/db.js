@@ -53,7 +53,16 @@ export function useRun(id) {
 
 // Create a run
 export function createRun(data) {
-  return firestore().collection("runs").add(data);
+  return firestore().collection('runs').add(data);
+}
+
+// Add a run to a user's saved runs collections
+export function saveRun(uid, run) {
+  return firestore()
+    .collection('users')
+    .doc(uid)
+    .collection('savedRuns')
+    .add(run);
 }
 
 // Update an item

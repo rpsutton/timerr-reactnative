@@ -12,7 +12,7 @@ import {
 } from '@ui-kitten/components';
 import {LargeBackIcon} from '../../../components/icons';
 
-export function CreateRunDescriptionScreen({navigation}) {
+export function CreateRunDescriptionScreen({navigation, route}) {
   const [runName, setRunName] = useState('');
   const [runDescription, setRunDescription] = useState('');
   const [unitsIndex, setUnitsIndex] = useState(new IndexPath(0));
@@ -40,6 +40,7 @@ export function CreateRunDescriptionScreen({navigation}) {
         runName: runName,
         runDescription: runDescription,
         distanceUnits: units[unitsIndex.row].distanceUnits,
+        uid: route.params.uid,
       });
     } else {
       Alert.alert(

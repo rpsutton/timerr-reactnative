@@ -14,70 +14,60 @@ export const RunListComponent = (props) => {
     let newArr = [...lapArray];
     newArr[index].downfield.distance.quantity = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
 
   const updateDownfieldTargetTimeMinutes = e => {
     let newArr = [...lapArray];
     newArr[index].downfield.targetTime.minutes = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
 
   const updateDownfieldTargetTimeSeconds = e => {
     let newArr = [...lapArray];
     newArr[index].downfield.targetTime.seconds = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
 
   const updateDownfieldRestTimeMinutes = e => {
     let newArr = [...lapArray];
     newArr[index].downfield.restTime.minutes = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
 
   const updateDownfieldRestTimeSeconds = e => {
     let newArr = [...lapArray];
     newArr[index].downfield.restTime.seconds = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
 
   const updateUpfieldDistanceQuantity = e => {
     let newArr = [...lapArray];
     newArr[index].upfield.distance.quantity = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
 
   const updateUpfieldTargetTimeMinutes = e => {
     let newArr = [...lapArray];
     newArr[index].upfield.targetTime.minutes = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
 
   const updateUpfieldTargetTimeSeconds = e => {
     let newArr = [...lapArray];
     newArr[index].upfield.targetTime.seconds = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
 
   const updateUpfieldRestTimeMinutes = e => {
     let newArr = [...lapArray];
     newArr[index].upfield.restTime.minutes = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
 
   const updateUpfieldRestTimeSeconds = e => {
     let newArr = [...lapArray];
     newArr[index].upfield.restTime.seconds = e;
     setLapArray(newArr);
-    console.log(newArr);
   };
   return (
     <Card disabled={true} style={{ marginTop: '1%' }}>
@@ -87,9 +77,9 @@ export const RunListComponent = (props) => {
       </Text>
       <Input
         style={{ padding: 0, margin: 0 }}
-        keyboardType="numeric"
+        keyboardType="number-pad"
         label={`Distance Downfield - ${distanceUnits}`}
-        placeholder="Enter Distance Ran Downfield"
+        placeholder="Enter distance ran downfield"
         value={lap.downfield.distance.quantity.toString()}
         onChangeText={nextValue => updateDownfieldDistanceQuantity(nextValue)}
       />
@@ -99,7 +89,7 @@ export const RunListComponent = (props) => {
       <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
         <Input
           placeholder="0"
-          keyboardType="numeric"
+          keyboardType="number-pad"
           label="Target Minutes"
           value={lap.downfield.targetTime.minutes.toString()}
           onChangeText={nextValue =>
@@ -108,7 +98,7 @@ export const RunListComponent = (props) => {
         />
         <Input
           placeholder="0"
-          keyboardType="numeric"
+          keyboardType="number-pad"
           style={{ marginLeft: '5%' }}
           label="Target Seconds"
           value={lap.downfield.targetTime.seconds.toString()}
@@ -123,14 +113,14 @@ export const RunListComponent = (props) => {
       <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
         <Input
           placeholder="0"
-          keyboardType="numeric"
+          keyboardType="number-pad"
           label="Rest Minutes"
           value={lap.downfield.restTime.minutes.toString()}
           onChangeText={nextValue => updateDownfieldRestTimeMinutes(nextValue)}
         />
         <Input
           placeholder="0"
-          keyboardType="numeric"
+          keyboardType="number-pad"
           style={{ marginLeft: '5%' }}
           label="Rest Seconds"
           value={lap.downfield.restTime.seconds.toString()}
@@ -141,8 +131,8 @@ export const RunListComponent = (props) => {
         Upfield
       </Text>
       <Input
-        placeholder="Enter Distance Ran Upfield"
-        keyboardType="numeric"
+        placeholder="Enter distance ran upfield"
+        keyboardType="number-pad"
         label={`Distance Upfield - ${distanceUnits}`}
         value={lap.upfield.distance.quantity.toString()}
         onChangeText={nextValue => updateUpfieldDistanceQuantity(nextValue)}
@@ -153,14 +143,14 @@ export const RunListComponent = (props) => {
       <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
         <Input
           placeholder="0"
-          keyboardType="numeric"
+          keyboardType="number-pad"
           label="Target Minutes"
           value={lap.upfield.targetTime.minutes.toString()}
           onChangeText={nextValue => updateUpfieldTargetTimeMinutes(nextValue)}
         />
         <Input
           placeholder="0"
-          keyboardType="numeric"
+          keyboardType="number-pad"
           style={{ marginLeft: '5%' }}
           label="Target Seconds"
           value={lap.upfield.targetTime.seconds.toString()}
@@ -173,14 +163,14 @@ export const RunListComponent = (props) => {
       <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
         <Input
           placeholder="0"
-          keyboardType="numeric"
+          keyboardType="number-pad"
           label="Rest Minutes"
           value={lap.upfield.restTime.minutes.toString()}
           onChangeText={nextValue => updateUpfieldRestTimeMinutes(nextValue)}
         />
         <Input
           placeholder="0"
-          keyboardType="numeric"
+          keyboardType="number-pad"
           style={{ marginLeft: '5%' }}
           label="Rest Seconds"
           value={lap.upfield.restTime.seconds.toString()}

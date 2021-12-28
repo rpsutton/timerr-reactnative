@@ -166,6 +166,7 @@ export const SelectRunScreen = ({navigation}) => {
                 announceInterval:
                   announceInterval[announceIntervalIndex.row].time,
                 runId: runs[runIndex.row].runId,
+                uid: user.uid,
               },
             })
           }>

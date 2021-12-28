@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   TopNavigation,
   TopNavigationAction,
@@ -6,9 +6,11 @@ import {
   useStyleSheet,
   List,
   Button,
+  Modal,
+  Spinner,
 } from '@ui-kitten/components';
 import {View, KeyboardAvoidingView, Platform, Alert} from 'react-native';
-import {createRun} from '../../../util/db';
+import {createRun, saveRun} from '../../../util/db';
 import {RunListComponent} from '../../../components/createRunComponents/RunListComponent';
 import {
   LargeBackIcon,
@@ -23,7 +25,6 @@ const lapFramework = {
   // One lap
   downfield: {
     distance: {
-      measure: 'meters',
       quantity: '',
     },
     targetTime: {
@@ -37,7 +38,6 @@ const lapFramework = {
   },
   upfield: {
     distance: {
-      measure: 'meters',
       quantity: '',
     },
     targetTime: {
@@ -57,18 +57,44 @@ export const CreateRunScreen = ({navigation, route}) => {
   const runDescription = route.params.runDescription;
   const distanceUnits = route.params.distanceUnits;
   const styles = useStyleSheet(themedStyle);
-  const [loading, setLoading] = useState();
+  const [upLoading, setUpLoading] = useState();
 
   // run sequence
   const [lapArray, setLapArray] = useState([lapFramework]);
 
   function addLap() {
+    let emptyLap = {
+      // One lap
+      downfield: {
+        distance: {
+          quantity: '',
+        },
+        targetTime: {
+          minutes: '',
+          seconds: '',
+        },
+        restTime: {
+          minutes: '',
+          seconds: '',
+        },
+      },
+      upfield: {
+        distance: {
+          quantity: '',
+        },
+        targetTime: {
+          minutes: '',
+          seconds: '',
+        },
+        restTime: {
+          minutes: '',
+          seconds: '',
+        },
+      },
+    };
     let newArr = [...lapArray];
-    console.log(newArr);
-    newArr.push(lapFramework);
-    console.log(lapFramework);
+    newArr.push(emptyLap);
     setLapArray(newArr);
-    console.log(newArr);
   }
 
   // duplicate previous lap
@@ -110,7 +136,7 @@ export const CreateRunScreen = ({navigation, route}) => {
         );
         return;
       } else {
-        setLoading(true);
+        setUpLoading(true);
         createRun({
           timeCreated: new Date(),
           creatorId: uid,
@@ -119,13 +145,21 @@ export const CreateRunScreen = ({navigation, route}) => {
           runSequence: lapArray,
           distanceUnits: distanceUnits,
         })
+          .then(res => {
+            saveRun(uid, {
+              runId: res.id,
+              runName: runName,
+              runDescription: runDescription,
+            });
+          })
           .then(() => {
             setTimeout(() => {
-              setLoading(false);
-              navigation.goBack();
+              setUpLoading(false);
+              navigation.navigate('Home Screen');
             }, 1500);
           })
           .catch(e => {
+            setUpLoading(false);
             Alert.alert(e);
             console.log(e);
           });
@@ -171,6 +205,9 @@ export const CreateRunScreen = ({navigation, route}) => {
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <Modal visible={upLoading} backdropStyle={styles.backdrop}>
+          <Spinner size="giant" status="basic" />
+        </Modal>
         <List
           data={lapArray}
           renderItem={renderItem}
@@ -236,5 +273,8 @@ const themedStyle = StyleService.create({
     alignItems: 'flex-start',
     alignSelf: 'center',
     width: '95%',
+  },
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });
