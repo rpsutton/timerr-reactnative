@@ -4,6 +4,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {InitializingScreen} from './initializing-screen';
 import {HomeScreen} from '../screens/main/home/home-screen';
+import {AddRunScreen} from '../screens/main/home/add-run-screen';
 import {SelectRunScreen} from '../screens/main/cardio/select-run-screen';
 import {ConfirmRunScreen} from '../screens/main/cardio/confirm-run-screen';
 import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
@@ -29,23 +30,20 @@ const HomeScreenStack = () => {
   return (
     <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
       <Stack.Screen name="Home Screen" component={HomeScreen} />
+      <Stack.Screen name="Add Run Screen" component={AddRunScreen} />
       <Stack.Screen name="Create Run Screen" component={CreateRunScreen} />
-      <Stack.Screen name="Create Run Description Screen" component={CreateRunDescriptionScreen} />
-    </Stack.Navigator>
-  );
-};
-
-const SelectStack = () => {
-  return (
-    <Stack.Navigator headerMode="none" initialRouteName="Select Run Screen">
-      <Stack.Screen name="Select Run Screen" component={SelectRunScreen} />
+      <Stack.Screen
+        name="Create Run Description Screen"
+        component={CreateRunDescriptionScreen}
+      />
     </Stack.Navigator>
   );
 };
 
 const RunStack = () => {
   return (
-    <Stack.Navigator headerMode="none" initialRouteName="Confirm Run Screen">
+    <Stack.Navigator headerMode="none" initialRouteName="SelectRunScreen">
+      <Stack.Screen name="Select Run Screen" component={SelectRunScreen} />
       <Stack.Screen name="Confirm Run Screen" component={ConfirmRunScreen} />
       <Stack.Screen
         name="Run Test Screen"
@@ -95,7 +93,7 @@ const TabNavigator = () => (
     screenOptions={{headerShown: false}}
     initialRouteName="Select">
     <Tab.Screen name="Home" component={HomeScreenStack} />
-    <Tab.Screen name="Select" component={SelectStack} />
+    <Tab.Screen name="Run" component={RunStack} />
     <Tab.Screen name="Settings" component={ProfileStack} />
   </Tab.Navigator>
 );

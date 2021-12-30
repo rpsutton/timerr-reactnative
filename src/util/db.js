@@ -70,14 +70,17 @@ export function updateItem(id, data) {
   return firestore().collection('items').doc(id).update(data);
 }
 
-export function setEventComplete(eventId, uid) {
-  return firestore()
-    .collection('events')
-    .doc(eventId)
-    .update({
-      eventCompletedPlayers: firestore.FieldValue.arrayUnion(uid),
-    })
-    .catch(e => console.log(e));
+export async function hanleCompleteRun(uid, completeRun) {
+  try {
+    return firestore()
+      .collection('users')
+      .doc(uid)
+      .collection('completedRuns')
+      .add(completeRun);
+  } catch (e) {
+    console.log(e);
+    return e;
+  }
 }
 
 // Create a new item

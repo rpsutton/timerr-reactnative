@@ -54,7 +54,7 @@ export const ConfirmRunScreen = ({navigation, route}) => {
     );
   }
 
-  const Footer = (props) => {
+  const Footer = props => {
     return (
       <View {...props}>
         <Text category="s1" appearance="hint" style={{fontWeight: '800'}}>
@@ -117,6 +117,7 @@ export const ConfirmRunScreen = ({navigation, route}) => {
                     announceInterval: announceInterval,
                     run: run,
                     uid: uid,
+                    runId: runId,
                   })
                 }>
                 Confirm

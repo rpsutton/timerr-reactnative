@@ -159,15 +159,12 @@ export const SelectRunScreen = ({navigation}) => {
           style={styles.startButton}
           size="giant"
           onPress={() =>
-            navigation.navigate('Run Stack', {
-              screen: 'Confirm Run Screen',
-              params: {
-                initialCountdown: countdown[countdownIndex.row].time,
-                announceInterval:
-                  announceInterval[announceIntervalIndex.row].time,
-                runId: runs[runIndex.row].runId,
-                uid: user.uid,
-              },
+            navigation.navigate('Confirm Run Screen', {
+              initialCountdown: countdown[countdownIndex.row].time,
+              announceInterval:
+                announceInterval[announceIntervalIndex.row].time,
+              runId: runs[runIndex.row].runId,
+              uid: user.uid,
             })
           }>
           Select Run

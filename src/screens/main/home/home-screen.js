@@ -61,17 +61,31 @@ export const HomeScreen = ({navigation}) => {
 
   const Footer = () => {
     return (
-      <Button
-        onPress={() =>
-          navigation.navigate('Create Run Description Screen', {
-            uid: user.uid,
-          })
-        }
-        status="primary"
-        size="giant"
-        style={{marginTop: '4%'}}>
-        Add A Run To My List
-      </Button>
+      <View>
+        <Button
+          onPress={() =>
+            navigation.navigate('Create Run Description Screen', {
+              uid: user.uid,
+            })
+          }
+          status="primary"
+          size="large"
+          style={{marginTop: '3%'}}>
+          Create a New Run
+        </Button>
+        <Button
+           onPress={() =>
+            navigation.navigate('Add Run Screen', {
+              uid: user.uid,
+            })
+          }
+          status="primary"
+          appearance="outline"
+          size="large"
+          style={{marginTop: '3%'}}>
+          Add a Run By Code
+        </Button>
+      </View>
     );
   };
 

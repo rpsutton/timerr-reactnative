@@ -14,13 +14,14 @@ import {
 import {Alert, View, useWindowDimensions} from 'react-native';
 import {CountdownCircleTimer} from 'react-native-countdown-circle-timer';
 import Tts from 'react-native-tts';
-import {setEventComplete} from '../../../util/db';
+import {hanleCompleteRun} from '../../../util/db';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 //import Geolocation from 'react-native-geolocation-service';
 //import {hasLocationPermission} from '../../../components/runs/permissionsFunctions';
 
 export const RunTestScreen = ({navigation, route}) => {
   const run = route.params.run;
+  const runId = route.params.runId;
   const uid = route.params.uid;
   // read in countdown to start, countdown to 0, announcement interval
   const interval = route.params.announceInterval;
@@ -271,16 +272,13 @@ export const RunTestScreen = ({navigation, route}) => {
                 } else {
                   setIsComplete(true);
                   Tts.speak('complete');
-                  // make sure to get the eventId from prev screen
-                  // conditionally execute this, only if event id exists
-                  /*
-                  if (event !== undefined && event !== null) {
-                    console.log(event.id);
-                    setEventComplete(event.id, uid);
-
-                  }
-                  */
-                  navigation.navigate('Home Screen');
+                  hanleCompleteRun(uid, {
+                    completedRunName: run.runName,
+                    completedRunId: runId,
+                    completedRunDate: new Date(),
+                  })
+                    .then(() => navigation.navigate('Select Run Screen'))
+                    .catch(e => Alert.alert(e));
                 }
               }}
               isPlaying={isPlaying}
