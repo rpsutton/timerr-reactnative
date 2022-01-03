@@ -55,7 +55,7 @@ export const RunTestScreen = ({navigation, route}) => {
     Tts.setIgnoreSilentSwitch('ignore');
     Tts.setDucking(true);
     Tts.getInitStatus().then(status => {
-      Tts.speak('run selected');
+      console.log(status);
       setVoiceReady(true);
     });
   }, []);
@@ -178,7 +178,7 @@ export const RunTestScreen = ({navigation, route}) => {
           distance: run.runSequence[i].upfield.distance.quantity,
         });
 
-        if (restTimeUpfield) {
+        if (restTimeUpfield > 0) {
           formattedRun.push({time: restTimeUpfield, isRest: true, distance: 0});
         }
       }

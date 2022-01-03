@@ -91,7 +91,7 @@ const TabNavigator = () => (
   <Tab.Navigator
     tabBar={props => <BottomTabBar {...props} />}
     screenOptions={{headerShown: false}}
-    initialRouteName="Select">
+    initialRouteName="Run">
     <Tab.Screen name="Home" component={HomeScreenStack} />
     <Tab.Screen name="Run" component={RunStack} />
     <Tab.Screen name="Settings" component={ProfileStack} />

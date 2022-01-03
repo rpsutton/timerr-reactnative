@@ -20,8 +20,10 @@ import firestore from '@react-native-firebase/firestore';
 
 export const SelectRunScreen = ({navigation}) => {
   const date = new Date();
-  const [loading, setLoading] = useState(true);
-  const [runs, setRuns] = useState([]);
+  const [savedRunsLoading, setSavedRunsLoading] = useState(true);
+  const [completedRunsLoading, setCompletedRunsLoading] = useState(true);
+  const [savedRuns, setSavedRuns] = useState([]);
+  const [completedRuns, setCompletedRuns] = useState([]);
   const auth = useAuth();
   const user = auth.user;
   const styles = useStyleSheet(themedStyle);
@@ -31,12 +33,6 @@ export const SelectRunScreen = ({navigation}) => {
     new IndexPath(4),
   );
 
-  const data = [
-    {runName: '120s', date: 'Mon Oct 11 2021'},
-    {runName: 'Man U', date: 'Sat Oct 9 2021'},
-    {runName: 'Fartlek', date: 'Fri Oct 8 2021'},
-  ];
-
   useEffect(() => {
     if (user !== null && user !== undefined) {
       const subscriber = firestore()
@@ -44,15 +40,41 @@ export const SelectRunScreen = ({navigation}) => {
         .doc(user.uid)
         .collection('savedRuns')
         .onSnapshot(querySnapshot => {
-          const savedRuns = [];
+          const savedRunsArr = [];
           querySnapshot.forEach(documentSnapshot => {
-            savedRuns.push({
+            savedRunsArr.push({
               ...documentSnapshot.data(),
               key: documentSnapshot.id,
             });
           });
-          setRuns(savedRuns);
-          setLoading(false);
+          setSavedRuns(savedRunsArr);
+          setSavedRunsLoading(false);
+        });
+
+      // Unsubscribe from events when no longer in use
+      return () => subscriber();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user !== null && user !== undefined) {
+      const subscriber = firestore()
+        .collection('users')
+        .doc(user.uid)
+        .collection('completedRuns')
+        .limit(4)
+        .orderBy('completedRunDate', 'desc')
+        .onSnapshot(querySnapshot => {
+          const completedRunsArr = [];
+          querySnapshot.forEach(documentSnapshot => {
+            completedRunsArr.push({
+              ...documentSnapshot.data(),
+              key: documentSnapshot.id,
+            });
+          });
+          console.log(completedRunsArr);
+          setCompletedRuns(completedRunsArr);
+          setCompletedRunsLoading(false);
         });
 
       // Unsubscribe from events when no longer in use
@@ -101,12 +123,13 @@ export const SelectRunScreen = ({navigation}) => {
   );
 
   function renderItem({item, index}) {
+    let d = new Date(item.completedRunDate.seconds * 1000).toDateString();
     return (
       <ListItem
         disabled={true}
         key={index}
-        title={`${index + 1}. ${item.runName}`}
-        description={item.date}
+        title={`${index + 1}. ${item.completedRunName}`}
+        description={d}
       />
     );
   }
@@ -128,14 +151,14 @@ export const SelectRunScreen = ({navigation}) => {
           size="large"
           style={styles.select}
           placeholder="Default"
-          value={runs[runIndex.row].runName}
+          value={savedRuns[runIndex.row].runName}
           selectedIndex={runIndex}
           onSelect={index => setRunIndex(index)}>
-          {runs.map(renderRunOption)}
+          {savedRuns.map(renderRunOption)}
         </Select>
         <View style={styles.bottomSelections}>
           <Select
-            label="Countdown Before Run"
+            label="Countdown"
             size="large"
             style={styles.bottomSelect}
             placeholder="Default"
@@ -145,7 +168,7 @@ export const SelectRunScreen = ({navigation}) => {
             {countdown.map(renderCountdownOption)}
           </Select>
           <Select
-            label="Announce Time Every"
+            label="Announcement Interval"
             size="large"
             style={styles.bottomSelect}
             placeholder="Default"
@@ -163,7 +186,7 @@ export const SelectRunScreen = ({navigation}) => {
               initialCountdown: countdown[countdownIndex.row].time,
               announceInterval:
                 announceInterval[announceIntervalIndex.row].time,
-              runId: runs[runIndex.row].runId,
+              runId: savedRuns[runIndex.row].runId,
               uid: user.uid,
             })
           }>
@@ -176,7 +199,17 @@ export const SelectRunScreen = ({navigation}) => {
     );
   }
 
-  if (loading) {
+  function Footer() {
+    if (completedRuns.length > 0) {
+      return null;
+    } else {
+      return (
+        <Text category="s1">No recent runs yet. Complete a run to see it appear here.</Text>
+      );
+    }
+  }
+
+  if (savedRunsLoading || completedRunsLoading) {
     return (
       <Layout style={styles.loadingContainer} level="2">
         <Spinner size="giant" status="primary" />
@@ -187,7 +220,7 @@ export const SelectRunScreen = ({navigation}) => {
       <>
         <TopNavCustom title={`Hello, ${auth.user.firstName}.`} />
         <Layout style={styles.container} level="2">
-          {runs.length == 0 ? (
+          {savedRuns.length == 0 ? (
             <Text
               status="basic"
               category="h2"
@@ -196,11 +229,12 @@ export const SelectRunScreen = ({navigation}) => {
             </Text>
           ) : (
             <List
-              data={data}
+              data={completedRuns}
               renderItem={renderItem}
               ListHeaderComponent={Header}
               ItemSeparatorComponent={Divider}
               style={{height: '100%', width: '95%', alignSelf: 'center'}}
+              ListFooterComponent={Footer}
             />
           )}
         </Layout>
