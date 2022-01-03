@@ -56,6 +56,31 @@ export function createRun(data) {
   return firestore().collection('runs').add(data);
 }
 
+// return doc data if doc exists, otherwise returns false
+export async function getValidRun(runId) {
+  try {
+    const doc = await firestore().collection('runs').doc(runId).get();
+    if (doc.exists) {
+      return {run: doc.data(), id: doc.id};
+    } else {
+      return false;
+    }
+  } catch (e) {
+    return console.log(e);
+  }
+}
+
+// returns true is there is no duplicate, false otherwise
+export async function checkDuplicateSavedRun(uid, runId) {
+  const querySnapshot = await firestore()
+    .collection('users')
+    .doc(uid)
+    .collection('savedRuns')
+    .where('runId', '==', runId)
+    .get();
+  return querySnapshot.empty;
+}
+
 // Add a run to a user's saved runs collections
 export function saveRun(uid, run) {
   return firestore()
@@ -69,7 +94,7 @@ export function saveRun(uid, run) {
 export function updateItem(id, data) {
   return firestore().collection('items').doc(id).update(data);
 }
-
+// add run to a user's completedRuns collection
 export async function hanleCompleteRun(uid, completeRun) {
   try {
     return firestore()
@@ -91,32 +116,6 @@ export function createItem(data) {
 // Create Post
 export function createPost(data) {
   return firestore().collection('posts').add(data);
-}
-
-export function checkValidTeamId(teamId) {
-  return firestore()
-    .collection('teams')
-    .doc(teamId)
-    .get()
-    .then(doc => {
-      return doc.exists;
-    })
-    .catch(e => console.log(e));
-}
-
-export function useTeam(teamId) {
-  return useQuery(teamId && firestore().collection('teams').doc(teamId));
-}
-
-export function useRunsByTeamAndDay(teamId, date) {
-  return useQuery(
-    teamId &&
-      date &&
-      firestore
-        .collection('runs')
-        .where('resource.teamId', 'in', teamId)
-        .where('start', '==', date),
-  );
 }
 
 /**** HELPERS ****/

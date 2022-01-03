@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
-import {StyleSheet, ScrollView, Alert, Keyboard} from 'react-native';
+import {StyleSheet, ScrollView, Alert} from 'react-native';
 import {
   Layout,
   Input,
@@ -10,30 +10,50 @@ import {
   Modal,
   Spinner,
 } from '@ui-kitten/components';
-import {checkValidTeamId} from '../../../util/db';
+import {getValidRun, saveRun, checkDuplicateSavedRun} from '../../../util/db';
 import {KeypadIcon} from '../../../components/icons';
 import {useAuth} from '../../../util/auth';
 
 export const AddRunScreen = ({route, navigation}) => {
   const auth = useAuth();
-  const [teamCode, setTeamCode] = useState('');
+  const [runCode, setRunCode] = useState('');
   const [loading, setLoading] = useState('');
-
-  function onSubmit(teamId) {
+  // check if the runId is valid
+  // check if the run already exists in the user's savedRuns collection
+  // add the run to the user's savedRuns collection
+  function onSubmit(runId) {
     setLoading(true);
-    checkValidTeamId(teamId).then(res => {
+    getValidRun(runId).then(res => {
       if (res) {
-        auth
-          .updateProfile({
-            teamId: teamId,
-          })
-          .then(() => setLoading(false))
-          .catch(e => Alert.alert(e));
+        console.log(res);
+        console.log(res.id);
+        checkDuplicateSavedRun(auth.user.uid, res.id).then(bool => {
+          if (bool) {
+            saveRun(auth.user.uid, {
+              runDescription: res.run.runDescription,
+              runId: res.id,
+              runName: res.run.runName,
+            })
+              .then(() => {
+                setTimeout(() => {
+                  setLoading(false);
+                  navigation.goBack();
+                }, 500);
+              })
+              .catch(e => {
+                console.log(e);
+                Alert.alert(e);
+              });
+          } else {
+            Alert.alert('You already saved this run');
+            setLoading(false);
+          }
+        });
       } else {
-        Alert.alert('Invalid team id');
+        Alert.alert('Invalid run id');
+        setLoading(false);
       }
     });
-    setLoading(false);
   }
 
   const goBack = () => {
@@ -49,7 +69,7 @@ export const AddRunScreen = ({route, navigation}) => {
   const SaveButton = () => (
     <Button
       size="small"
-      onPress={() => onSubmit(teamCode)}
+      onPress={() => onSubmit(runCode)}
       appearance="ghost"
       status="primary">
       Add
@@ -75,9 +95,9 @@ export const AddRunScreen = ({route, navigation}) => {
             <Input
               accessoryRight={KeypadIcon}
               size="large"
-              placeholder={teamCode}
+              placeholder="Enter code"
               label="Enter a run code"
-              onChangeText={nextValue => setTeamCode(nextValue)}
+              onChangeText={nextValue => setRunCode(nextValue)}
             />
           </Layout>
         </ScrollView>

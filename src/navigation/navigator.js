@@ -11,7 +11,6 @@ import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
 import {CreateRunDescriptionScreen} from '../screens/main/home/createRunDescription-screen';
 import {CreateRunScreen} from '../screens/main/home/create-run-screen';
 import {ProfileScreen} from '../screens/main/profile/profile-screen';
-import {EditTeamMembershipScreen} from '../screens/main/profile/editTeamMembership-screen';
 import {EditNameScreen} from '../screens/main/profile/editName-screen';
 import {SignInScreen} from '../screens/auth/signIn-screen';
 import {SignUpScreen} from '../screens/auth/signUp-screen';
@@ -58,10 +57,6 @@ const ProfileStack = () => {
   return (
     <Stack.Navigator headerMode="none" initialRouteName="Profile">
       <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen
-        name="Edit Team Membership"
-        component={EditTeamMembershipScreen}
-      />
       <Stack.Screen name="Edit Name" component={EditNameScreen} />
     </Stack.Navigator>
   );

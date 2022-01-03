@@ -1,19 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {StyleSheet, ScrollView, View} from 'react-native';
 import {
   Layout,
   Text,
-  Input,
   TopNavigation,
   TopNavigationAction,
   Button,
   Divider,
-  Spinner,
   Card,
 } from '@ui-kitten/components';
 import {useAuth} from '../../../util/auth';
-import {DrawerIcon, EmailIcon} from '../../../components/icons';
+import {DrawerIcon} from '../../../components/icons';
 
 export const SettingsScreen = ({route, navigation}) => {
   const auth = useAuth();
