@@ -146,11 +146,7 @@ export const CreateRunScreen = ({navigation, route}) => {
           distanceUnits: distanceUnits,
         })
           .then(res => {
-            saveRun(uid, {
-              runId: res.id,
-              runName: runName,
-              runDescription: runDescription,
-            });
+            saveRun(uid, res);
           })
           .then(() => {
             setTimeout(() => {

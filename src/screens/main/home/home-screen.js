@@ -15,10 +15,11 @@ import {View} from 'react-native';
 import {TopNavCustom} from '../../../components/universal/topnav';
 import {useAuth} from '../../../util/auth';
 import firestore from '@react-native-firebase/firestore';
+import { ChevronRightIcon } from '../../../components/icons';
 
 export const HomeScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true);
-  const [runs, setRuns] = useState([]);
+  const [runObjs, setRunObjs] = useState([]);
   const auth = useAuth();
   const user = auth.user;
   const styles = useStyleSheet(themedStyle);
@@ -37,7 +38,7 @@ export const HomeScreen = ({navigation}) => {
               key: documentSnapshot.id,
             });
           });
-          setRuns(savedRuns);
+          setRunObjs(savedRuns);
           setLoading(false);
         });
 
@@ -74,7 +75,7 @@ export const HomeScreen = ({navigation}) => {
           Create a New Run
         </Button>
         <Button
-           onPress={() =>
+          onPress={() =>
             navigation.navigate('Add Run Screen', {
               uid: user.uid,
             })
@@ -89,19 +90,19 @@ export const HomeScreen = ({navigation}) => {
     );
   };
 
-  const EditButton = () => (
-    <Button size="tiny" status="primary" appearance="outline">
-      View
-    </Button>
-  );
-
   function renderItem({item, index}) {
     return (
       <ListItem
-        title={item.runName}
+        title={item.run.runName}
         key={index}
-        accessoryRight={EditButton}
-        disabled={true}
+        accessoryRight={ChevronRightIcon}
+        disabled={false}
+        onPress={() =>
+          navigation.navigate('View Run Screen', {
+            runObj: item,
+            uid: user.uid,
+          })
+        }
       />
     );
   }
@@ -118,7 +119,7 @@ export const HomeScreen = ({navigation}) => {
         <TopNavCustom title={`Hello, ${auth.user.firstName}.`} />
         <Layout contentContainerStyle={styles.container} level="2">
           <List
-            data={runs}
+            data={runObjs}
             ListHeaderComponent={Header}
             ListFooterComponent={Footer}
             renderItem={renderItem}

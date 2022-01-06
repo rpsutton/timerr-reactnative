@@ -22,7 +22,7 @@ export const SelectRunScreen = ({navigation}) => {
   const date = new Date();
   const [savedRunsLoading, setSavedRunsLoading] = useState(true);
   const [completedRunsLoading, setCompletedRunsLoading] = useState(true);
-  const [savedRuns, setSavedRuns] = useState([]);
+  const [savedRunObjs, setSavedRunObjs] = useState([]);
   const [completedRuns, setCompletedRuns] = useState([]);
   const auth = useAuth();
   const user = auth.user;
@@ -47,7 +47,7 @@ export const SelectRunScreen = ({navigation}) => {
               key: documentSnapshot.id,
             });
           });
-          setSavedRuns(savedRunsArr);
+          setSavedRunObjs(savedRunsArr);
           setSavedRunsLoading(false);
         });
 
@@ -151,10 +151,10 @@ export const SelectRunScreen = ({navigation}) => {
           size="large"
           style={styles.select}
           placeholder="Default"
-          value={savedRuns[runIndex.row].runName}
+          value={savedRunObjs[runIndex.row].run.runName}
           selectedIndex={runIndex}
           onSelect={index => setRunIndex(index)}>
-          {savedRuns.map(renderRunOption)}
+          {savedRunObjs.map(renderRunOption)}
         </Select>
         <View style={styles.bottomSelections}>
           <Select
@@ -186,7 +186,7 @@ export const SelectRunScreen = ({navigation}) => {
               initialCountdown: countdown[countdownIndex.row].time,
               announceInterval:
                 announceInterval[announceIntervalIndex.row].time,
-              runId: savedRuns[runIndex.row].runId,
+              run: savedRunObjs[runIndex.row].run,
               uid: user.uid,
             })
           }>
@@ -220,11 +220,11 @@ export const SelectRunScreen = ({navigation}) => {
       <>
         <TopNavCustom title={`Hello, ${auth.user.firstName}.`} />
         <Layout style={styles.container} level="2">
-          {savedRuns.length == 0 ? (
+          {savedRunObjs.length == 0 ? (
             <Text
               status="basic"
               category="h2"
-              style={{fontSize: 32, fontWeight: '900'}}>
+              style={{fontSize: 32, fontWeight: '900', alignSelf: 'center'}}>
               You have not saved any runs yet.
             </Text>
           ) : (

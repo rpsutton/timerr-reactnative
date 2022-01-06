@@ -5,6 +5,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {InitializingScreen} from './initializing-screen';
 import {HomeScreen} from '../screens/main/home/home-screen';
 import {AddRunScreen} from '../screens/main/home/add-run-screen';
+import { ViewRunScreen } from '../screens/main/home/view-run-screen';
 import {SelectRunScreen} from '../screens/main/cardio/select-run-screen';
 import {ConfirmRunScreen} from '../screens/main/cardio/confirm-run-screen';
 import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
@@ -29,6 +30,7 @@ const HomeScreenStack = () => {
   return (
     <Stack.Navigator headerMode="none" initialRouteName="Home Screen">
       <Stack.Screen name="Home Screen" component={HomeScreen} />
+      <Stack.Screen name="View Run Screen" component={ViewRunScreen} />
       <Stack.Screen name="Add Run Screen" component={AddRunScreen} />
       <Stack.Screen name="Create Run Screen" component={CreateRunScreen} />
       <Stack.Screen

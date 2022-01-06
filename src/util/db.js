@@ -90,6 +90,15 @@ export function saveRun(uid, run) {
     .add(run);
 }
 
+export function removeSavedRun(uid, savedRunId) {
+  return firestore()
+    .collection('users')
+    .doc(uid)
+    .collection('savedRuns')
+    .doc(savedRunId)
+    .delete();
+}
+
 // Update an item
 export function updateItem(id, data) {
   return firestore().collection('items').doc(id).update(data);

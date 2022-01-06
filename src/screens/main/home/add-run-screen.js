@@ -29,11 +29,7 @@ export const AddRunScreen = ({route, navigation}) => {
         console.log(res.id);
         checkDuplicateSavedRun(auth.user.uid, res.id).then(bool => {
           if (bool) {
-            saveRun(auth.user.uid, {
-              runDescription: res.run.runDescription,
-              runId: res.id,
-              runName: res.run.runName,
-            })
+            saveRun(auth.user.uid, res)
               .then(() => {
                 setTimeout(() => {
                   setLoading(false);
@@ -66,16 +62,6 @@ export const AddRunScreen = ({route, navigation}) => {
     </Button>
   );
 
-  const SaveButton = () => (
-    <Button
-      size="small"
-      onPress={() => onSubmit(runCode)}
-      appearance="ghost"
-      status="primary">
-      Add
-    </Button>
-  );
-
   const GoBackButton = () => <TopNavigationAction icon={CancelButton} />;
 
   return (
@@ -84,14 +70,13 @@ export const AddRunScreen = ({route, navigation}) => {
         title="Add Run By Code"
         alignment="center"
         accessoryLeft={GoBackButton}
-        accessoryRight={SaveButton}
       />
       <Layout style={{flex: 1}} level="2">
         <ScrollView contentContainerStyle={styles.layout}>
           <Modal visible={loading} backdropStyle={styles.backdrop}>
             <Spinner size="giant" status="basic" />
           </Modal>
-          <Layout style={styles.bioContainer} level="2">
+          <Layout style={styles.container} level="2">
             <Input
               accessoryRight={KeypadIcon}
               size="large"
@@ -99,6 +84,12 @@ export const AddRunScreen = ({route, navigation}) => {
               label="Enter a run code"
               onChangeText={nextValue => setRunCode(nextValue)}
             />
+            <Button
+              size="large"
+              style={styles.submitButton}
+              onPress={() => onSubmit(runCode)}>
+              Add Run
+            </Button>
           </Layout>
         </ScrollView>
       </Layout>
@@ -113,28 +104,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: '3%',
   },
-  profileAvatar: {
-    borderRadius: 5,
-    height: 100,
-    width: 100,
-  },
-  bioContainer: {
+  container: {
     flex: 1,
     width: '90%',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    borderRadius: 5,
+    borderRadius: 5
   },
-  rowContainer: {
+  submitButton: {
+    marginTop: '3%',
     width: '100%',
-    padding: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderBottomWidth: 1,
-  },
-  bioText: {
-    width: '100%',
-    padding: 10,
   },
   backdrop: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

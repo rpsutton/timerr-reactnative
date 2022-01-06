@@ -20,6 +20,7 @@ const KeypadIcon = (props) => <Icon {...props} name="keypad-outline" />;
 const LargeCloseIcon = (props) => <Icon {...props} name="close-outline" style={[props.style, {width: 35, height: 35}]}/>;
 const LargeBackIcon = (props) => <Icon {...props} name="chevron-left-outline" style={[props.style, {width: 35, height: 35}]}/>;
 const InfoIcon = (props) => <Icon {...props} name="info-outline" {...props}/>;
+const ChevronRightIcon = (props) => <Icon {...props} name="chevron-right-outline" {...props}/>;
 
 export {
   LargeCopyIcon,
@@ -39,4 +40,5 @@ export {
   LargeCloseIcon,
   LargeBackIcon,
   InfoIcon,
+  ChevronRightIcon,
 };
