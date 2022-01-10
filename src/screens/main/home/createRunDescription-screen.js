@@ -40,7 +40,7 @@ export function CreateRunDescriptionScreen({navigation, route}) {
         runName: runName,
         runDescription: runDescription,
         distanceUnits: units[unitsIndex.row].distanceUnits,
-        uid: route.params.uid,
+        user: route.params.user,
       });
     } else {
       Alert.alert(

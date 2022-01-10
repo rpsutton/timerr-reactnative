@@ -10,7 +10,7 @@ import {
   Spinner,
 } from '@ui-kitten/components';
 import {View, KeyboardAvoidingView, Platform, Alert} from 'react-native';
-import {createRun, updateSavedRuns} from '../../../util/db';
+import {createRun, saveRun, updateRun} from '../../../util/db';
 import {RunListComponent} from '../../../components/createRunComponents/RunListComponent';
 import {
   LargeBackIcon,
@@ -21,46 +21,17 @@ import {
   InfoIcon,
 } from '../../../components/icons';
 
-const lapFramework = {
-  // One lap
-  downfield: {
-    distance: {
-      quantity: '',
-    },
-    targetTime: {
-      minutes: '',
-      seconds: '',
-    },
-    restTime: {
-      minutes: '',
-      seconds: '',
-    },
-  },
-  upfield: {
-    distance: {
-      quantity: '',
-    },
-    targetTime: {
-      minutes: '',
-      seconds: '',
-    },
-    restTime: {
-      minutes: '',
-      seconds: '',
-    },
-  },
-};
-
-export const CreateRunScreen = ({navigation, route}) => {
-  const user = route.params.user;
-  const runName = route.params.runName;
-  const runDescription = route.params.runDescription;
-  const distanceUnits = route.params.distanceUnits;
+export const EditRunScreen = ({navigation, route}) => {
+  const runId = route.params.runObj.id;
+  const runName = route.params.runObj.runName;
+  const distanceUnits = route.params.runObj.distanceUnits;
   const styles = useStyleSheet(themedStyle);
   const [upLoading, setUpLoading] = useState();
 
   // run sequence
-  const [lapArray, setLapArray] = useState([lapFramework]);
+  const [lapArray, setLapArray] = useState(route.params.runObj.runSequence);
+
+  console.log(lapArray);
 
   function addLap() {
     let emptyLap = {
@@ -137,34 +108,18 @@ export const CreateRunScreen = ({navigation, route}) => {
         return;
       } else {
         setUpLoading(true);
-        try {
-          createRun({
-            timeCreated: new Date(),
-            creatorId: user.id,
-            runName: runName,
-            runDescription: runDescription,
-            runSequence: lapArray,
-            distanceUnits: distanceUnits,
+        updateRun(runId, lapArray)
+          .then(() => {
+            setTimeout(() => {
+              setUpLoading(false);
+              navigation.navigate('Home Screen');
+            }, 1500);
           })
-            .then(res => {
-              const arr = user.savedRuns;
-              arr.push(res.id);
-              console.log(arr);
-              updateSavedRuns(user.uid, arr).catch(e => {
-                Alert.alert(e);
-                console.log(e);
-              });
-            })
-            .then(() => {
-              setTimeout(() => {
-                setUpLoading(false);
-                navigation.navigate('Home Screen');
-              }, 1500);
-            });
-        } catch (e) {
-          Alert.alert(e);
-          console.log(e);
-        }
+          .catch(e => {
+            setUpLoading(false);
+            Alert.alert(e);
+            console.log(e);
+          });
       }
     } else {
       Alert.alert(

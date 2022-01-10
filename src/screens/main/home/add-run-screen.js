@@ -10,7 +10,10 @@ import {
   Modal,
   Spinner,
 } from '@ui-kitten/components';
-import {getValidRun, saveRun, checkDuplicateSavedRun} from '../../../util/db';
+import {
+  getValidRun,
+  updateSavedRuns,
+} from '../../../util/db';
 import {KeypadIcon} from '../../../components/icons';
 import {useAuth} from '../../../util/auth';
 
@@ -25,29 +28,22 @@ export const AddRunScreen = ({route, navigation}) => {
     setLoading(true);
     getValidRun(runId).then(res => {
       if (res) {
-        console.log(res);
-        console.log(res.id);
-        checkDuplicateSavedRun(auth.user.uid, res.id).then(bool => {
-          if (bool) {
-            saveRun(auth.user.uid, res)
-              .then(() => {
-                setTimeout(() => {
-                  setLoading(false);
-                  navigation.goBack();
-                }, 500);
-              })
-              .catch(e => {
-                console.log(e);
-                Alert.alert(e);
-              });
-          } else {
-            Alert.alert('You already saved this run');
-            setLoading(false);
-          }
-        });
+        if (!auth.user.savedRuns.includes(res.id)) {
+          let updatedRunIds = auth.user.savedRuns;
+          updatedRunIds.push(res.id);
+          updateSavedRuns(auth.user.uid, updatedRunIds).catch(e => {
+            console.log(e);
+            Alert.alert(e);
+          });
+          setLoading(false);
+          navigation.goBack();
+        } else {
+          setLoading(false);
+          Alert.alert('You already saved this run');
+        }
       } else {
-        Alert.alert('Invalid run id');
         setLoading(false);
+        Alert.alert('Invalid run id');
       }
     });
   }
@@ -109,7 +105,7 @@ const styles = StyleSheet.create({
     width: '90%',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    borderRadius: 5
+    borderRadius: 5,
   },
   submitButton: {
     marginTop: '3%',

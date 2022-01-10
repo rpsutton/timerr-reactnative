@@ -1,4 +1,4 @@
-import {useReducer, useEffect, useRef, useState} from 'react';
+import {useReducer, useEffect, useRef} from 'react';
 import firestore from '@react-native-firebase/firestore';
 /**** USERS ****/
 
@@ -23,21 +23,6 @@ export function createUser(uid, data) {
 
 /**** ITEMS ****/
 /* Example query functions (modify to your needs) */
-
-// Fetch all runs of a specified team
-export function getRunsByTeam(teamId) {
-  var runs = [];
-  firestore()
-    .collection('runs')
-    .where('teamId', '==', teamId)
-    .get()
-    .then(querySnapshot => {
-      querySnapshot.forEach(documentSnapshot => {
-        runs.push(documentSnapshot.data());
-      });
-    });
-  return runs;
-}
 
 // Fetch all items by owner (hook)
 export function useItemsByOwner(owner) {
@@ -70,33 +55,19 @@ export async function getValidRun(runId) {
   }
 }
 
-// returns true is there is no duplicate, false otherwise
-export async function checkDuplicateSavedRun(uid, runId) {
-  const querySnapshot = await firestore()
+export function updateRun(runId, runSequence) {
+  return firestore()
     .collection('users')
-    .doc(uid)
-    .collection('savedRuns')
-    .where('runId', '==', runId)
-    .get();
-  return querySnapshot.empty;
+    .doc(runId)
+    .update({runSequence: runSequence});
 }
 
-// Add a run to a user's saved runs collections
-export function saveRun(uid, run) {
+export function updateSavedRuns(uid, updatedRunIds) {
+  console.log(updatedRunIds);
   return firestore()
     .collection('users')
     .doc(uid)
-    .collection('savedRuns')
-    .add(run);
-}
-
-export function removeSavedRun(uid, savedRunId) {
-  return firestore()
-    .collection('users')
-    .doc(uid)
-    .collection('savedRuns')
-    .doc(savedRunId)
-    .delete();
+    .update({savedRuns: updatedRunIds});
 }
 
 // Update an item
@@ -115,16 +86,6 @@ export async function hanleCompleteRun(uid, completeRun) {
     console.log(e);
     return e;
   }
-}
-
-// Create a new item
-export function createItem(data) {
-  return firestore().collection('items').add(data);
-}
-
-// Create Post
-export function createPost(data) {
-  return firestore().collection('posts').add(data);
 }
 
 /**** HELPERS ****/

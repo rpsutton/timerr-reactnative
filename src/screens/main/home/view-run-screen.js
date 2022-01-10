@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
   Layout,
   Text,
@@ -8,14 +8,15 @@ import {
   useStyleSheet,
   Button,
   Card,
-  Spinner,
 } from '@ui-kitten/components';
 import {View, ScrollView} from 'react-native';
 import {LargeBackIcon} from '../../../components/icons';
 
 export const ViewRunScreen = ({navigation, route}) => {
   const runObj = route.params.runObj;
+  console.log(runObj);
   const uid = route.params.uid;
+  console.log(uid);
   const styles = useStyleSheet(themedStyle);
 
   const goBack = () => {
@@ -29,10 +30,10 @@ export const ViewRunScreen = ({navigation, route}) => {
     return (
       <View {...props}>
         <Text category="h3" style={{fontStyle: 'italic'}}>
-          {runObj.run.runName}
+          {runObj.runName}
         </Text>
         <Text category="h6" status="primary">
-          {runObj.run.runSequence.length} Lap Run
+          {runObj.runSequence.length} Lap Run
         </Text>
       </View>
     );
@@ -55,22 +56,20 @@ export const ViewRunScreen = ({navigation, route}) => {
             <Text category="s1" appearance="hint" style={{fontWeight: '800'}}>
               Run Description
             </Text>
-            <Text category="s1">{runObj.run.runDescription}</Text>
+            <Text category="s1">{runObj.runDescription}</Text>
           </Card>
-          <Button
-            status="primary"
-            style={styles.confirmButton}
-            size="giant"
-            >
+          <Button status="primary" style={styles.confirmButton} size="giant">
             View Run Sequence
           </Button>
-          {runObj.run.creatorId == uid && (
+          {runObj.creatorId == uid && (
             <Button
               status="primary"
               appearance="outline"
               style={styles.backButton}
               size="giant"
-              onPress={() => navigation.goBack()}>
+              onPress={() =>
+                navigation.navigate('Edit Run Screen', {runObj: runObj, uid: uid})
+              }>
               Edit Run
             </Button>
           )}

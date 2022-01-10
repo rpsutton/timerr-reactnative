@@ -11,6 +11,7 @@ import {ConfirmRunScreen} from '../screens/main/cardio/confirm-run-screen';
 import {RunTestScreen} from '../screens/main/cardio/runTest-screen';
 import {CreateRunDescriptionScreen} from '../screens/main/home/createRunDescription-screen';
 import {CreateRunScreen} from '../screens/main/home/create-run-screen';
+import { EditRunScreen } from '../screens/main/home/edit-run';
 import {ProfileScreen} from '../screens/main/profile/profile-screen';
 import {EditNameScreen} from '../screens/main/profile/editName-screen';
 import {SignInScreen} from '../screens/auth/signIn-screen';
@@ -33,6 +34,7 @@ const HomeScreenStack = () => {
       <Stack.Screen name="View Run Screen" component={ViewRunScreen} />
       <Stack.Screen name="Add Run Screen" component={AddRunScreen} />
       <Stack.Screen name="Create Run Screen" component={CreateRunScreen} />
+      <Stack.Screen name="Edit Run Screen" component={EditRunScreen} />
       <Stack.Screen
         name="Create Run Description Screen"
         component={CreateRunDescriptionScreen}

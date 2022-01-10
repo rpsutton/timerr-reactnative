@@ -13,7 +13,7 @@ import {
   ListItem,
   Divider,
 } from '@ui-kitten/components';
-import {View} from 'react-native';
+import {Alert, View} from 'react-native';
 import {TopNavCustom} from '../../../components/universal/topnav';
 import {useAuth} from '../../../util/auth';
 import firestore from '@react-native-firebase/firestore';
@@ -35,24 +35,28 @@ export const SelectRunScreen = ({navigation}) => {
 
   useEffect(() => {
     if (user !== null && user !== undefined) {
-      const subscriber = firestore()
-        .collection('users')
-        .doc(user.uid)
-        .collection('savedRuns')
-        .onSnapshot(querySnapshot => {
-          const savedRunsArr = [];
-          querySnapshot.forEach(documentSnapshot => {
-            savedRunsArr.push({
-              ...documentSnapshot.data(),
-              key: documentSnapshot.id,
+      if (user.savedRuns.length > 0) {
+        try {
+          firestore()
+            .collection('runs')
+            .where(firestore.FieldPath.documentId(), 'in', user.savedRuns)
+            .onSnapshot(querySnapshot => {
+              const savedRunsArr = [];
+              querySnapshot.forEach(documentSnapshot => {
+                savedRunsArr.push({
+                  ...documentSnapshot.data(),
+                  id: documentSnapshot.id,
+                });
+              });
+              setSavedRunObjs(savedRunsArr);
+              setSavedRunsLoading(false);
             });
-          });
-          setSavedRunObjs(savedRunsArr);
-          setSavedRunsLoading(false);
-        });
-
-      // Unsubscribe from events when no longer in use
-      return () => subscriber();
+        } catch (e) {
+          Alert.alert(e);
+          console.log(e);
+        }
+      }
+      setSavedRunsLoading(false);
     }
   }, [user]);
 
@@ -69,10 +73,9 @@ export const SelectRunScreen = ({navigation}) => {
           querySnapshot.forEach(documentSnapshot => {
             completedRunsArr.push({
               ...documentSnapshot.data(),
-              key: documentSnapshot.id,
+              id: documentSnapshot.id,
             });
           });
-          console.log(completedRunsArr);
           setCompletedRuns(completedRunsArr);
           setCompletedRunsLoading(false);
         });
@@ -82,8 +85,8 @@ export const SelectRunScreen = ({navigation}) => {
     }
   }, [user]);
 
-  const renderRunOption = run => (
-    <SelectItem title={run.runName} key={runIndex} />
+  const renderRunOption = item => (
+    <SelectItem title={item.runName} key={runIndex} />
   );
 
   const countdown = [
@@ -151,7 +154,7 @@ export const SelectRunScreen = ({navigation}) => {
           size="large"
           style={styles.select}
           placeholder="Default"
-          value={savedRunObjs[runIndex.row].run.runName}
+          value={savedRunObjs[runIndex.row].runName}
           selectedIndex={runIndex}
           onSelect={index => setRunIndex(index)}>
           {savedRunObjs.map(renderRunOption)}
@@ -186,7 +189,7 @@ export const SelectRunScreen = ({navigation}) => {
               initialCountdown: countdown[countdownIndex.row].time,
               announceInterval:
                 announceInterval[announceIntervalIndex.row].time,
-              run: savedRunObjs[runIndex.row].run,
+              run: savedRunObjs[runIndex.row],
               uid: user.uid,
             })
           }>
@@ -204,12 +207,14 @@ export const SelectRunScreen = ({navigation}) => {
       return null;
     } else {
       return (
-        <Text category="s1">No recent runs yet. Complete a run to see it appear here.</Text>
+        <Text category="s1">
+          No recent runs yet. Complete a run to see it appear here.
+        </Text>
       );
     }
   }
 
-  if (savedRunsLoading || completedRunsLoading) {
+  if (savedRunsLoading || completedRunsLoading || user === undefined) {
     return (
       <Layout style={styles.loadingContainer} level="2">
         <Spinner size="giant" status="primary" />
@@ -220,7 +225,7 @@ export const SelectRunScreen = ({navigation}) => {
       <>
         <TopNavCustom title={`Hello, ${auth.user.firstName}.`} />
         <Layout style={styles.container} level="2">
-          {savedRunObjs.length == 0 ? (
+          {user.savedRuns.length === 0 ? (
             <Text
               status="basic"
               category="h2"

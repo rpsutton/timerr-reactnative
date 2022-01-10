@@ -15,7 +15,7 @@ import {View} from 'react-native';
 import {TopNavCustom} from '../../../components/universal/topnav';
 import {useAuth} from '../../../util/auth';
 import firestore from '@react-native-firebase/firestore';
-import { ChevronRightIcon } from '../../../components/icons';
+import {ChevronRightIcon} from '../../../components/icons';
 
 export const HomeScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true);
@@ -26,24 +26,27 @@ export const HomeScreen = ({navigation}) => {
 
   useEffect(() => {
     if (user !== null && user !== undefined) {
-      const subscriber = firestore()
-        .collection('users')
-        .doc(user.uid)
-        .collection('savedRuns')
-        .onSnapshot(querySnapshot => {
-          const savedRuns = [];
-          querySnapshot.forEach(documentSnapshot => {
-            savedRuns.push({
-              ...documentSnapshot.data(),
-              key: documentSnapshot.id,
+      if (auth.user.savedRuns.length > 0) {
+        try {
+          firestore()
+            .collection('runs')
+            .where(firestore.FieldPath.documentId(), 'in', user.savedRuns)
+            .onSnapshot(querySnapshot => {
+              const savedRuns = [];
+              querySnapshot.forEach(documentSnapshot => {
+                savedRuns.push({
+                  ...documentSnapshot.data(),
+                  id: documentSnapshot.id,
+                });
+              });
+              setRunObjs(savedRuns);
             });
-          });
-          setRunObjs(savedRuns);
-          setLoading(false);
-        });
-
+        } catch (e) {
+          console.log(e);
+        }
+      }
       // Unsubscribe from events when no longer in use
-      return () => subscriber();
+      setLoading(false);
     }
   }, [user]);
 
@@ -66,7 +69,7 @@ export const HomeScreen = ({navigation}) => {
         <Button
           onPress={() =>
             navigation.navigate('Create Run Description Screen', {
-              uid: user.uid,
+              user: user,
             })
           }
           status="primary"
@@ -93,7 +96,7 @@ export const HomeScreen = ({navigation}) => {
   function renderItem({item, index}) {
     return (
       <ListItem
-        title={item.run.runName}
+        title={item.runName}
         key={index}
         accessoryRight={ChevronRightIcon}
         disabled={false}
@@ -107,7 +110,7 @@ export const HomeScreen = ({navigation}) => {
     );
   }
 
-  if (loading) {
+  if (loading || auth.user === undefined) {
     return (
       <Layout style={styles.loadingContainer} level="2">
         <Spinner size="giant" status="primary" />

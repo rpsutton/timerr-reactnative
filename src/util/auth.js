@@ -49,8 +49,8 @@ function useProvideAuth() {
         email: user.email,
         firstName: firstName,
         lastName: lastName,
-        teamId: null,
         userType: 'player',
+        savedRuns: [],
       });
 
       // Send email verification if enabled
